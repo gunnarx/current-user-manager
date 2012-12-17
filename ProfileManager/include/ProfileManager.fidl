@@ -1,0 +1,123 @@
+
+/*****************************************************************
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (c) 2012 Harman International Industries, Inc.
+* All rights reserved
+****************************************************************/
+package org.genivi.profile_mgmt
+
+interface ProfileManager {
+   version { major 1 minor 0 }
+
+   /**
+     * Needs to be called first if clients are interested in the current IVI user.
+     * The appID must be unique within the system, and should somehow relate to the executable,
+     * component and instance of the calling client component e.g. HMI_MoviePlayer_BackSeat.
+     * Each seat can have a user, so by identifying the seatID, ProfileManager knows which
+     * seat the caller is interested in. If a client logs in with the same appID, it is assumed,
+     * that the last instance crashed, and hence this is a re-registration of the restarted client.
+     * If a client is interested in multiple seats he must register multiple times.
+     */
+   method registerMe {
+      in {
+         String  consumerAddress
+         String   appID
+         Int32 seatID
+      }
+   }
+   
+   /**
+     * If a client is not interested in the current IVI user any more, he needs to unregister. If a client
+     * forgets to unregister, this might lead to unexpected delays during user switches.
+     * the seatID must be provided to support multiple registration.
+     */
+   method unregisterMe {
+      in {
+         String consumerAddress
+         String appID
+         Int32  seatID
+      }
+   }
+   
+   /**
+     * As soon as the client is ready and prepared for the next user (signaled via the detectedUser method),
+     * he must confirm this back to his ProfileManager (Becomes obsolete, if new signals from ProfileManager are
+     * received).
+     */
+   method confirm {
+      in {
+         UInt64 sessionID
+      }
+   }
+   
+   /**
+     * By answering the stop call via the stopped command the client confirms to the ProfileManager, that it
+     * will stop supporting the last logged in user. The most important fact which is transported back to
+     * the ProfileManager via the stopped method is the promise to not contact other clients with the
+     * assumption of the last logged user still active. This is important to correctly switch users adhering
+     * to possible client dependencies.
+     */
+   method stopped {
+      in {
+         UInt64 sessionID
+      }
+   }
+}
+
+
+interface ProfileManagerConsumer {
+   version { major 1 minor 0 }
+
+    /**
+     * Is send to client after registration as soon as the user is known, or during a user switch.
+     * seatID describes the seat, the user has been detected on. userID represents the newly detected
+     * user. The sessionID needs to be memorized by client and repeated back to ProfileManager
+     * on several occasions. If a client registers for several seats, the client must also memorize multiple
+     * sessionIDs.
+     * Depending on system design, clients may immediately start to display and to adjust to the newly found
+     * user. If for a particular reason in the system design the switch needs to be fulfilled in synchronization
+     * with other clients then displaying and adjusting should be delayed until a synchronizedUser signal is
+     * received.
+     * In any case, as soon as the client would be able to display and adjust and is readily prepared for the
+     * next user, a confirm signal needs to be send back to his ProfileManager.
+     * Typically after each client confirmed the detectedUser a synchronizedUser signal will be received.
+     * But instead of a  synchronizedUser signal, also a stop or a next detectedUser signal might be received
+     * next. If such a signal is received, only the last signal needs to be answered (stopped) or confirmed.
+     */
+   method detectedUser {
+      in {
+         Int32     seatID
+         Int32    userID
+         UInt64   sessionID
+      }
+   }
+
+   /**
+     * While some clients need to adapt to a new user as soon as possible via the detectedUser signal, for other
+     * clients it is more important to do it at the approximately same time as the other clients. Hence after
+     * all clients confirmed the detectedUser, the synchronizedUser signal is send to all clients. No feedback
+     * to the ProfileManager is required after receiving this signal.
+     */
+   method synchronizedUser {
+      in {
+         Int32   seatID
+         Int32   userID
+         UInt64  sessionID
+      }
+   }
+   
+   
+   /**
+     * When a new user is detected, or the logout/absence of the last user, the stop signal is send to the clients.
+     * The seatID indicates the abandoned seat, the sessionID must be memorized by the client for the reply.
+     * Since users can (depending on policy) logout any time, stop signals can be received any time after registration.
+     */
+   method stop  {
+      in {
+         Int32  seatID
+         UInt64 sessionID
+      }
+   }
+}
