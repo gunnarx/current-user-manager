@@ -23,9 +23,9 @@ public:
    ProfileManagerStub(): Stub(){};
    virtual ~ProfileManagerStub(){};
 
-   virtual void registerMe (std::string consumerAddress, std::string appID, int32_t seatID) = 0;
+   virtual void registerMe (std::string consumerAddress, std::string appID, u_int32_t seatID) = 0;
 
-   virtual void unregisterMe (std::string consumerAddress, std::string appID, int32_t seatID) = 0;
+   virtual void unregisterMe (std::string consumerAddress, std::string appID, u_int32_t seatID) = 0;
 
    virtual void confirm(uint64_t sessionID) = 0;
 

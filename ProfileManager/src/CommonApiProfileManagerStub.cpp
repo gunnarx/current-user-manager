@@ -29,7 +29,7 @@ ProfileManagerConsumerProxyBase* CommonApiProfileManagerStub::getConsumerProxy(C
 }
 
 
-void CommonApiProfileManagerStub::registerMe (std::string consumerAddress, std::string appID, int32_t seatID){
+void CommonApiProfileManagerStub::registerMe (std::string consumerAddress, std::string appID, u_int32_t seatID){
    std::map<std::string, ProfileManagerConsumerProxyBase*>::const_iterator i = mAddress2ClientId.find(consumerAddress);
    if (i == mAddress2ClientId.end ()) {
       mAddress2ClientId[consumerAddress] = mFactory->buildProxy(consumerAddress);
@@ -38,7 +38,7 @@ void CommonApiProfileManagerStub::registerMe (std::string consumerAddress, std::
 }
 
 
-void CommonApiProfileManagerStub::unregisterMe(std::string consumerAddress, std::string appID, int32_t seatID){
+void CommonApiProfileManagerStub::unregisterMe(std::string consumerAddress, std::string appID, u_int32_t seatID){
    mLogic->receiveUnregister(consumerAddress, appID, seatID);
    ProfileManagerConsumerProxyBase* p = mAddress2ClientId[consumerAddress];
    if (p != 0) {

@@ -12,7 +12,7 @@
 
 #include "../include/CommonApi.h"
 #include "../include/ProfileManagerLog.h"
-#include "../include/IdentificationPlugin.h"
+#include "../include/CProfileManagerCtrlConsumer.h"
 #include "../src/ProfileManagerMain.h"
 
 
@@ -22,13 +22,11 @@
 class TestFactory;
 class EventReceiver;
 
-class ServerLoop : public IdentificationPlugin {
+class ServerLoop : public CProfileManagerCtrlConsumer {
 public:
    ServerLoop(EventMessageQ<PrflMgrTestTypes::SrvMsg>& SrvQ, TestFactory* factory);
    void run();
    virtual ~ServerLoop();
-
-   void initPlugin(SetUserIntf* usrIf);
 
 private:
    class Logger : public ProfileManagerLog {
@@ -39,9 +37,13 @@ private:
 
    EventMessageQ<PrflMgrTestTypes::SrvMsg>*   mSrvQ;
    ProfileManagerMain*                       mProfileManager;
-   ProfileManagerCfg*                        mCfg;
    TestFactory*                              mFactory;
-   SetUserIntf*                              mSetUserIntf;
+
+   void onTimeOut(std::string& appName, u_int32_t userId, u_int32_t seatId, ESignal s, uint64_t sessionId, int32_t timeElapsedMs);
+   void onStateChangeStart(u_int32_t userId, u_int32_t seatId, u_int32_t depLevel, ESignal s, uint64_t sessionId);
+   void onStateChangeStop( u_int32_t userId, u_int32_t seatId, u_int32_t depLevel, ESignal s, uint64_t sessionId);
+   void onClientRegister( u_int32_t seatId, std::string& appName);
+   void onClientUnregister( u_int32_t seatId, std::string& appName);
 };
 
 #endif /* SERVERLOOP_H_ */

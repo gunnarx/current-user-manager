@@ -53,6 +53,7 @@ public:
    void sendConfirm(ClientSelector clientSelector, uint64_t sessionId);
    void sendStopped(ClientSelector clientSelector, uint64_t sessionId);
    void sendSetUser(int seatId, int userId);
+   void sendMessage2Client(char* message);
 
 };
 

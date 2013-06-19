@@ -32,9 +32,9 @@ public:
 
    void init(CommonApiProfileManagerStub* stub);
 
-   void sendDetectedUser(ClientSelector clientId, int seatId, int userId, uint64_t sessionId);
-   void sendSynchronizedUser(ClientSelector clientId, int seatId, int userId, uint64_t sessionId);
-   void sendStop(ClientSelector clientId, int seatId, uint64_t sessionId);
+   void sendDetectedUser(ClientSelector clientId, u_int32_t seatId, u_int32_t userId, uint64_t sessionId);
+   void sendSynchronizedUser(ClientSelector clientId, u_int32_t seatId, u_int32_t userId, uint64_t sessionId);
+   void sendStop(ClientSelector clientId, u_int32_t seatId, uint64_t sessionId);
 };
 
 

@@ -8,6 +8,7 @@
 
 #include "ProfileManagerLogic.h"
 #include <stdlib.h>
+#include <fstream>
 
 using namespace std;
 
@@ -60,14 +61,54 @@ int ProfileManagerLogic::getSeatId(uint64_t exernalSession) {
 }
 
 
-ProfileManagerLogic::ProfileManagerLogic(ProfileManagerLog& log, CommonApiProfileManagerIntf& clientSend, ProfileManagerCfg &cfg, int numOfSeats)
-: mCfg(&cfg)
-, mSeats(new Seat[numOfSeats])
-, mNumOfSeats(numOfSeats)
+ProfileManagerLogic::ProfileManagerLogic(ProfileManagerLog& log, CommonApiProfileManagerIntf& clientSend)
+: mCfg(0)
+, mSeats(0)
+, mNumOfSeats(-1)
 , mInternalSession(0)
 , mLog(&log)
 , mClientSend(&clientSend)
+, mCtrlConsumer(0)
 {
+}
+
+
+void ProfileManagerLogic::readCfgFromFile(){
+   mCfg = new CProfileManagerCfg();
+   unsigned int version;
+   unsigned int numOfCfgs;
+   fstream cfgFile("profile_manager_cfg", ios::in | ios::binary);
+   cfgFile.read((char*)&version, sizeof(unsigned int));
+   cfgFile.read((char*)&(mCfg->mDefaultDepLevel), sizeof(int));
+   cfgFile.read((char*)&(mCfg->mDefaultTimeOutMs), sizeof(unsigned int));
+   cfgFile.read((char*)&(mCfg->mNumOfSeats), sizeof(unsigned int));
+   cfgFile.read((char*)&numOfCfgs, sizeof(unsigned int));
+   for (int i = 0; i < numOfCfgs; i++) {
+      CProfileManagerCfg::ClientCfg ccfg;
+      unsigned int nameLen;
+      cfgFile.read((char*)&nameLen, sizeof(unsigned int));
+      char name[nameLen+1];
+      name[nameLen] = 0;
+      cfgFile.read(name, nameLen);
+      ccfg.mAppName = name;
+      cfgFile.read((char*)&(ccfg.mSeatId), sizeof(unsigned int));
+      cfgFile.read((char*)&(ccfg.mDepLevel), sizeof(int));
+      cfgFile.read((char*)&(ccfg.mTimeOutMs), sizeof(int));
+      mCfg->mClientCfgs.push_back(ccfg);
+   }
+   cfgFile.close();
+}
+
+
+void ProfileManagerLogic::registerMe(CProfileManagerCtrlConsumer& consumer, CProfileManagerCfg* cfg)
+{
+   mCtrlConsumer = &consumer;
+   mCfg = cfg;
+   if (mCfg == 0) {
+      readCfgFromFile();
+   }
+   mNumOfSeats = mCfg->mNumOfSeats;
+   mSeats = new Seat[mNumOfSeats];
    for (int seatIt = 0; seatIt < mNumOfSeats; seatIt++) {
       Seat* s = &(mSeats[seatIt]);
       s->mSeatId = seatIt;
@@ -77,11 +118,59 @@ ProfileManagerLogic::ProfileManagerLogic(ProfileManagerLog& log, CommonApiProfil
       s->mStatus = eNoUser;
       s->mInternalSession = 0;
    }
+   for (vector<CProfileManagerCfg::ClientCfg>::iterator cfgIt = mCfg->mClientCfgs.begin(); cfgIt != mCfg->mClientCfgs.end(); cfgIt++) {
+      int32_t depLevel = (*cfgIt).mDepLevel;
+      if (depLevel >= 0) {
+         bool inserted = false;
+         vector<int32_t>::iterator depIt = mDepLevels.begin();
+         for (; depIt != mDepLevels.end(); depIt++) {
+            if (*depIt == depLevel) {
+               inserted = true;
+               break;
+            } else if (*depIt > depLevel) {
+               inserted = true;
+               (void)mDepLevels.insert(depIt, depLevel);
+               break;
+            }
+         }
+         if (!inserted) {
+            mDepLevels.push_back(depLevel);
+         }
+      }
+   }
 }
 
 
-void ProfileManagerLogic::setCfg(ProfileManagerCfg& cfg){
-   mCfg = &cfg;
+/**
+ * Overloaded function for identification plugins to call to set a new user. Currently not thread safe!
+ * @param seatId ID of seat where new user was detected.
+ * @param userId Id of user that was detected on given seat.
+ */
+void ProfileManagerLogic::setUser(u_int32_t seatId, u_int32_t userId) {
+   Seat* s = &(mSeats[seatId]);
+   s->mNextUserId = userId;
+
+   if (s->mStatus != eNoUser) {
+      s->mStatus = eStopping;
+   }
+
+   sendStop(seatId, -1);
+   sendNextLevelStop(seatId);
+
+   if (checkNextUserPending(*s)){
+      if (sendDetected(seatId, -1) == 0 || sendNextLevelDetected(seatId) == 0) {
+         s->mStatus = eUser;
+      }
+   }
+}
+
+void ProfileManagerLogic::unsetUser(u_int32_t seatId){
+   //TBD
+}
+
+
+void ProfileManagerLogic::timeOutAction(uint64_t timeOutSessionId, ETimeOutAction timeOutAction){
+   //TBD
 }
 
 
@@ -98,8 +187,7 @@ ProfileManagerLogic::~ProfileManagerLogic() {
  */
 bool ProfileManagerLogic::checkStatus(EClientStatus clientState, Seat const &s, int depLevel) {
    vector<ProfileManagerClient>::const_iterator clientIt;
-   for (clientIt = s.mClientList.begin(); clientIt != s.mClientList.end();
-         clientIt++) {
+   for (clientIt = s.mClientList.begin(); clientIt != s.mClientList.end(); clientIt++) {
       ProfileManagerClient const * c = &(*clientIt);
       if ( (c->mClientCurrentStatus != eNotRegistered && c->mClientDepLevel == depLevel) &&
            (c->mClientCurrentStatus != clientState || c->mCurrentInternalSession != s.mInternalSession)) {
@@ -149,6 +237,9 @@ int ProfileManagerLogic::sendSync(int seatId) {
 int ProfileManagerLogic::sendDetected(int seatId, int depLevel) {
    int numOfSendMsgs = 0;
    Seat* s = &(mSeats[seatId]);
+
+   mCtrlConsumer->onStateChangeStart(s->mUserId, seatId, depLevel, CProfileManagerCtrlConsumer::eConfirm, s->mInternalSession);
+
    for (vector<ProfileManagerClient>::iterator clientIt = s->mClientList.begin(); clientIt != s->mClientList.end(); clientIt++) {
       ProfileManagerClient * c = &(*clientIt);
       if (c->mClientCurrentStatus != eNotRegistered && c->mClientDepLevel == depLevel) {
@@ -158,6 +249,11 @@ int ProfileManagerLogic::sendDetected(int seatId, int depLevel) {
          numOfSendMsgs++;
       }
    }
+
+   //if (numOfSendMsgs == 0) {
+      mCtrlConsumer->onStateChangeStop(s->mUserId, seatId, depLevel, CProfileManagerCtrlConsumer::eConfirm, s->mInternalSession);
+   //}
+
    return numOfSendMsgs;
 }
 
@@ -171,6 +267,10 @@ int ProfileManagerLogic::sendDetected(int seatId, int depLevel) {
 int ProfileManagerLogic::sendStop(int seatId, int depLevel) {
    int numOfSendMsgs = 0;
    Seat* s = &(mSeats[seatId]);
+
+   mCtrlConsumer->onStateChangeStart(s->mUserId, seatId, depLevel, CProfileManagerCtrlConsumer::eStopped, s->mInternalSession);
+
+
    for (vector<ProfileManagerClient>::iterator clientIt = s->mClientList.begin(); clientIt != s->mClientList.end(); clientIt++) {
       ProfileManagerClient * c = &(*clientIt);
       if (c->mClientCurrentStatus != eNotRegistered && c->mClientCurrentStatus != eStop &&
@@ -180,6 +280,10 @@ int ProfileManagerLogic::sendStop(int seatId, int depLevel) {
          c->mCurrentInternalSession = s->mInternalSession;
          numOfSendMsgs++;
       }
+   }
+
+   if (numOfSendMsgs == 0 ) {
+      mCtrlConsumer->onStateChangeStop(s->mUserId, seatId, depLevel, CProfileManagerCtrlConsumer::eStopped, s->mInternalSession);
    }
    return numOfSendMsgs;
 }
@@ -207,10 +311,10 @@ void ProfileManagerLogic::receiveRegister(ClientSelector clientSelector, std::st
 
       // If client was not yet registered, check what configuration needs to be applied
       if (c == 0) {
-         ProfileManagerCfg::ClientCfg* cfgClient = 0;
-         for (vector<ProfileManagerCfg::ClientCfg>::iterator cfgClientIt = mCfg->mClientCfgs.begin(); cfgClientIt != mCfg->mClientCfgs.end(); cfgClientIt++) {
-            ProfileManagerCfg::ClientCfg * foundClient = &(*cfgClientIt);
-            if ((foundClient->mSeatId == -1 || foundClient->mSeatId == seatID) && foundClient->mAppId.compare(appID) == 0) {
+         CProfileManagerCfg::ClientCfg* cfgClient = 0;
+         for (vector<CProfileManagerCfg::ClientCfg>::iterator cfgClientIt = mCfg->mClientCfgs.begin(); cfgClientIt != mCfg->mClientCfgs.end(); cfgClientIt++) {
+            CProfileManagerCfg::ClientCfg * foundClient = &(*cfgClientIt);
+            if ((foundClient->mSeatId == -1 || foundClient->mSeatId == seatID) && foundClient->mAppName.compare(appID) == 0) {
                cfgClient = foundClient;
                break;
             }
@@ -237,11 +341,13 @@ void ProfileManagerLogic::receiveRegister(ClientSelector clientSelector, std::st
          if (c->mClientDepLevel > -1) {
             mLog->log(PROFILEMAMAGERLOG_LEVEL_WARNING, "ProfileManager: Client with dependencies registered while user is active!");
          }
-         if (mCfg->mDepLevels[s->mDepLevelIndex] >= c->mClientDepLevel) {
+         if (s->mDepLevelIndex >= (int)mDepLevels.size() || mDepLevels[s->mDepLevelIndex] >= c->mClientDepLevel) {
             mClientSend->sendDetectedUser(c->mClientSelector, seatID, s->mUserId, getExternalSession(*s, *c));
             c->mClientCurrentStatus = eDetected;
          }
       }
+
+      mCtrlConsumer->onClientRegister(seatID, appID);
    }
 }
 
@@ -260,6 +366,7 @@ void ProfileManagerLogic::receiveUnregister(ClientSelector clientSelector, std::
          ProfileManagerClient * foundClient = &(*clientIt);
          if (foundClient->mClientName.compare(appID) == 0) {
             foundClient->mClientCurrentStatus = eNotRegistered;
+            mCtrlConsumer->onClientUnregister(seatID, appID);
             break;
          }
       }
@@ -276,10 +383,12 @@ void ProfileManagerLogic::receiveUnregister(ClientSelector clientSelector, std::
 int ProfileManagerLogic::sendNextLevelDetected(int seatId){
    Seat* s = &(mSeats[seatId]);
    int ctr = 0;
-   while (ctr == 0 && (unsigned int)s->mDepLevelIndex < mCfg->mDepLevels.size()) {
-      ctr = sendDetected(seatId, mCfg->mDepLevels[s->mDepLevelIndex]);
+
+   while (ctr == 0 && (unsigned int)s->mDepLevelIndex < mDepLevels.size()) {
+      ctr = sendDetected(seatId, mDepLevels[s->mDepLevelIndex]);
       s->mDepLevelIndex++;
    }
+
    return ctr;
 }
 
@@ -295,7 +404,7 @@ int ProfileManagerLogic::sendNextLevelStop(int seatId){
    Seat* s = &(mSeats[seatId]);
    while (ctr == 0 && s->mDepLevelIndex > 0) {
       s->mDepLevelIndex--;
-      ctr = sendStop(seatId, mCfg->mDepLevels[s->mDepLevelIndex]);
+      ctr = sendStop(seatId, mDepLevels[s->mDepLevelIndex]);
    }
    return ctr;
 }
@@ -321,8 +430,9 @@ void ProfileManagerLogic::receiveConfirm(uint64_t externalSession) {
          ProfileManagerClient *c = &(s->mClientList[clientId]);
          if (c->mCurrentInternalSession == internalSession && c->mClientCurrentStatus == eDetected) {
             c->mClientCurrentStatus = eConfirmed;
-            if (c->mClientDepLevel >= 0 && c->mClientDepLevel < mCfg->mDepLevels[s->mDepLevelIndex]) {
+            if (c->mClientDepLevel >= 0 && c->mClientDepLevel < mDepLevels[s->mDepLevelIndex]) {
                if (checkStatus(eConfirmed, *s, c->mClientDepLevel)) {
+                  mCtrlConsumer->onStateChangeStop(s->mUserId, seatId, c->mClientDepLevel, CProfileManagerCtrlConsumer::eConfirm, s->mInternalSession);
                   sendNextLevelDetected(seatId);
                }
             }
@@ -377,10 +487,11 @@ void ProfileManagerLogic::receiveStopped(uint64_t externalSession) {
          ProfileManagerClient *c = &(s->mClientList[getClientId(externalSession)]);
          if (c->mCurrentInternalSession == internalSession && c->mClientCurrentStatus == eStop) {
             c->mClientCurrentStatus = eStopped;
-            if (c->mClientDepLevel >= 0 &&
-                c->mClientDepLevel == mCfg->mDepLevels[s->mDepLevelIndex] &&
-                checkStatus(eStopped, *s, c->mClientDepLevel)) {
-               sendNextLevelStop(seatId);
+            if (checkStatus(eStopped, *s, c->mClientDepLevel)) {
+               mCtrlConsumer->onStateChangeStop(s->mUserId, seatId, c->mClientDepLevel, CProfileManagerCtrlConsumer::eStopped, s->mInternalSession);
+               if (c->mClientDepLevel >= 0 && c->mClientDepLevel == mDepLevels[s->mDepLevelIndex]) {
+                  sendNextLevelStop(seatId);
+               }
             }
          }
       }
@@ -422,26 +533,4 @@ bool ProfileManagerLogic::checkNextUserPending(Seat &s){
 }
 
 
-/**
- * Overloaded function for identification plugins to call to set a new user. Currently not thread safe!
- * @param seatId ID of seat where new user was detected.
- * @param userId Id of user that was detected on given seat.
- */
-void ProfileManagerLogic::setUser(int seatId, int userId) {
-   Seat* s = &(mSeats[seatId]);
-   s->mNextUserId = userId;
-
-   if (s->mStatus != eNoUser) {
-      s->mStatus = eStopping;
-   }
-
-   sendStop(seatId, -1);
-   sendNextLevelStop(seatId);
-
-   if (checkNextUserPending(*s)){
-      if (sendDetected(seatId, -1) == 0 || sendNextLevelDetected(seatId) == 0) {
-         s->mStatus = eUser;
-      }
-   }
-}
 

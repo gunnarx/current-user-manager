@@ -11,66 +11,22 @@
 #include "../src/ProfileManagerLogic.h"
 #include "../src/CommonApiProfileManagerIntf.h"
 #include "../src/CommonApiProfileManagerStub.h"
+#include "../include/CProfileManagerCtrlConsumer.h"
 
 #include "TestFactory.h"
 
 
 ServerLoop::ServerLoop(EventMessageQ<PrflMgrTestTypes::SrvMsg>& SrvQ, TestFactory* factory)
-: IdentificationPlugin()
-, mSrvQ(&SrvQ)
+: mSrvQ(&SrvQ)
 , mProfileManager(0)
-, mCfg(0)
-, mFactory(factory)
-, mSetUserIntf(0){
-   mCfg = new ProfileManagerCfg();
-
-   mCfg->mDepLevels.push_back(10);
-   mCfg->mDepLevels.push_back(100);
-   mCfg->mDepLevels.push_back(1000);
-
-   ProfileManagerCfg::ClientCfg clientCfg;
-
-   clientCfg.mAppId = "Client_4";
-   clientCfg.mDepLevel = 10;
-   clientCfg.mSeatId = -1;
-   mCfg->mClientCfgs.push_back(clientCfg);
-
-   clientCfg.mAppId = "Client_5";
-   clientCfg.mDepLevel = 10;
-   clientCfg.mSeatId = -1;
-   mCfg->mClientCfgs.push_back(clientCfg);
-
-   clientCfg.mAppId = "Client_6";
-   clientCfg.mDepLevel = 100;
-   clientCfg.mSeatId = -1;
-   mCfg->mClientCfgs.push_back(clientCfg);
-
-   clientCfg.mAppId = "Client_7";
-   clientCfg.mDepLevel = 100;
-   clientCfg.mSeatId = -1;
-   mCfg->mClientCfgs.push_back(clientCfg);
-
-   clientCfg.mAppId = "Client_8";
-   clientCfg.mDepLevel = 1000;
-   clientCfg.mSeatId = -1;
-   mCfg->mClientCfgs.push_back(clientCfg);
-
-   clientCfg.mAppId = "Client_9";
-   clientCfg.mDepLevel = 1000;
-   clientCfg.mSeatId = -1;
-   mCfg->mClientCfgs.push_back(clientCfg);
-
-   mProfileManager = new ProfileManagerMain(factory, mCfg, new Logger, 5);
-   mProfileManager->registerPlugin(this);
+, mFactory(factory) {
+   mProfileManager = new ProfileManagerMain(factory, new Logger());
 }
-
-void ServerLoop::initPlugin(SetUserIntf* intf){
-   mSetUserIntf = intf;
-}
-
 
 void ServerLoop::run(){
    bool stop = false;
+
+   mProfileManager->getProfileManagerCtrl()->registerMe(*this);
    while (!stop) {
       PrflMgrTestTypes::SrvMsg m = mSrvQ->poll();
       switch (m.mReceiveSelector ) {
@@ -90,7 +46,7 @@ void ServerLoop::run(){
          mFactory->getStub()->stopped(m.mSessionId);
          break;
       case PrflMgrTestTypes::eSrvSetUser:
-         mSetUserIntf->setUser(m.mSeatId, m.mUserId);
+         mProfileManager->getProfileManagerCtrl()->setUser(m.mSeatId, m.mUserId);
          break;
       default: stop = true;
          break;
@@ -98,6 +54,36 @@ void ServerLoop::run(){
    }
 }
 
-
 ServerLoop::~ServerLoop() {
+}
+
+void ServerLoop::onTimeOut(std::string& appName, u_int32_t userId, u_int32_t seatId, ESignal s, uint64_t sessionId, int32_t timeElapsedMs){
+   char buf[200];
+   std::sprintf(buf, "s:p.onTimeOut(app=%s, user=%i, seat=%i, signal=%s)\n", appName.data(), userId, seatId, s==CProfileManagerCtrlConsumer::eConfirm ? "confirmed" : "stopped");
+   mFactory->getEventReceiver()->sendMessage2Client(buf);
+
+}
+
+void ServerLoop::onStateChangeStart(u_int32_t userId, u_int32_t seatId, u_int32_t depLevel, ESignal s, uint64_t sessionId){
+   char buf[200];
+   std::sprintf(buf, "s:p.onStateChangeStart(level=%i, user=%i, seat=%i, signal=%s)\n", depLevel, userId, seatId, s==CProfileManagerCtrlConsumer::eConfirm ? "confirmed": "stopped");
+   mFactory->getEventReceiver()->sendMessage2Client(buf);
+}
+
+void ServerLoop::onStateChangeStop( u_int32_t userId, u_int32_t seatId, u_int32_t depLevel, ESignal s, uint64_t sessionId){
+   char buf[200];
+   std::sprintf(buf, "s:p.onStateChangeStop(level=%i, user=%i, seat=%i, signal=%s)\n", depLevel, userId, seatId, s==CProfileManagerCtrlConsumer::eConfirm ? "confirmed": "stopped");
+   mFactory->getEventReceiver()->sendMessage2Client(buf);
+}
+
+void ServerLoop::onClientRegister( u_int32_t seatId, std::string& appName){
+   char buf[200];
+   std::sprintf(buf, "s:p.onClientRegister(seat=%i, app=%s)\n", seatId, appName.data());
+   mFactory->getEventReceiver()->sendMessage2Client(buf);
+}
+
+void ServerLoop::onClientUnregister( u_int32_t seatId, std::string& appName){
+   char buf[200];
+   std::sprintf(buf, "s:p.onClientUnregister(seat=%i, app=%s)\n", seatId, appName.data());
+   mFactory->getEventReceiver()->sendMessage2Client(buf);
 }

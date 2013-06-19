@@ -9,8 +9,8 @@
 #define PROFILEMANAGERCFG_H_
 
 #include <string>
-
-class IdentificationPlugin;
+#include <vector>
+#include "CommonApi.h"
 
 /**
  * Holds the configuration of the ProfileManager. For each application, that needs specific treatment via
@@ -18,20 +18,20 @@ class IdentificationPlugin;
  * of all applications need to be collected and merged into a central configuration file. The result of passing
  * this configuration file must be saved to this structure and given to the ProfileManagerLogic upon construction.
  */
-struct ProfileManagerCfg {
-   enum EErrorAction {eReset = 0, eBlock = 1, eIgnore = 2 };
+class CProfileManagerCfg {
+public:
 
    struct ClientCfg {
-      std::string    mAppId;
-      int            mSeatId;
-      int            mDepLevel;
-      int            mTimeOutMs;
-      EErrorAction   mTimeOutAction;
+      std::string    mAppName;//application name as it used by Lifecycle
+      u_int32_t      mSeatId;//0xff ff ff ff indicates non seat specific
+      int32_t        mDepLevel;
+      int32_t        mTimeOutMs;
    };
 
-   std::vector<ClientCfg>              mClientCfgs;
-   std::vector<IdentificationPlugin*>  mIdPlugins;
-   std::vector<int>                    mDepLevels;
+   int32_t                 mDefaultDepLevel;
+   int32_t                 mDefaultTimeOutMs;
+   int32_t                 mNumOfSeats;
+   std::vector<ClientCfg>  mClientCfgs;
 };
 
 

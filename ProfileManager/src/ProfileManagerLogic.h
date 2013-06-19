@@ -17,8 +17,8 @@
 
 #include "../include/CommonApi.h"
 #include "../include/ProfileManagerLog.h"
-#include "../include/ProfileManagerCfg.h"
-#include "../include/SetUserIntf.h"
+#include "../include/CProfileManagerCfg.h"
+#include "../include/CProfileManagerCtrl.h"
 
 #include "CommonApiProfileManagerIntf.h"
 
@@ -31,7 +31,7 @@
  * rather than using a mutex.
  * Timeout behavior currently not part of POC
  */
-class ProfileManagerLogic : public SetUserIntf {
+class ProfileManagerLogic : public CProfileManagerCtrl {
 private:
 
    /// Describes the expected state of the client.
@@ -72,6 +72,7 @@ private:
    static int           getInternalSession(uint64_t externalSession);
    static int           getSeatId(uint64_t externalSession);
 
+   void                 readCfgFromFile();
    uint64_t             getExternalSession(Seat const &seat, ProfileManagerClient const  &client);
    bool                 checkStatus(EClientStatus clientStatus, Seat  const &s, int depLevel);
    bool                 checkNextUserPending(Seat &s);
@@ -82,17 +83,19 @@ private:
    int                  sendNextLevelDetected(int seatId);
    int                  sendNextLevelStop(int seatId);
 
-   ProfileManagerCfg*               mCfg;
+   CProfileManagerCfg*               mCfg;
    Seat*                            mSeats;
    int                              mNumOfSeats;
    int                              mInternalSession;
    ProfileManagerLog*               mLog;
    CommonApiProfileManagerIntf*     mClientSend;
+   CProfileManagerCtrlConsumer*     mCtrlConsumer;
    static uint64_t const            checksumKey;
+   std::vector<int32_t>             mDepLevels;
 
 public:
 
-   ProfileManagerLogic(ProfileManagerLog& log, CommonApiProfileManagerIntf& clientSend, ProfileManagerCfg& cfg, int numOfSeats);
+   ProfileManagerLogic(ProfileManagerLog& log, CommonApiProfileManagerIntf& clientSend);
    virtual ~ProfileManagerLogic();
 
    /**
@@ -102,18 +105,18 @@ public:
     */
    void setUser(int seatId, int userId);
 
-   /**
-    * Allows to reconfigure, if it might that changes have been done after ProfileManager instanciation
-    * @param cfg New Configuration, dependency levels affects only clients, which have never registered during this life-cycle
-    */
-   void setCfg(ProfileManagerCfg& cfg);
-
-
    //functions, that are triggered by clients, via for example  ProfileManage CommanAPI Stub implementation
    void receiveRegister(ClientSelector clientId, std::string appID, int seatID);
    void receiveUnregister(ClientSelector clientId, std::string appID, int seatID);
    void receiveConfirm(uint64_t externalSession);
    void receiveStopped(uint64_t externalSession);
+
+   //functions exposed via the Ctrl interface
+   void registerMe(CProfileManagerCtrlConsumer& consumer, CProfileManagerCfg* cfg = 0);
+   void setUser(u_int32_t userId, u_int32_t seatId);
+   void unsetUser(u_int32_t seatId);
+   void timeOutAction(uint64_t timeOutSessionId, ETimeOutAction timeOutAction);
+
 };
 
 #endif /* PROFILEMANAGERLOGIC_H_ */

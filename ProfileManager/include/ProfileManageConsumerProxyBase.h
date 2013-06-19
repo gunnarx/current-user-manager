@@ -23,9 +23,9 @@ public:
    ProfileManagerConsumerProxyBase(){};
    virtual ~ProfileManagerConsumerProxyBase(){};
 
-   virtual void detectedUser(int32_t seatID, int32_t userID, uint64_t sessionID) = 0;
-   virtual void synchronizedUser(int32_t seatID, int32_t userID, uint64_t sessionID) = 0;
-   virtual void stop(int32_t seatID, uint64_t sessionID) = 0;
+   virtual void detectedUser(u_int32_t seatID, u_int32_t userID, uint64_t sessionID) = 0;
+   virtual void synchronizedUser(u_int32_t seatID, u_int32_t userID, uint64_t sessionID) = 0;
+   virtual void stop(u_int32_t seatID, uint64_t sessionID) = 0;
 };
 
 

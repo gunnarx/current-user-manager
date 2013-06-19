@@ -22,9 +22,9 @@ public:
    TestProfileManagerConsumerProxy(EventReceiver* er, ClientSelector s);
    virtual ~TestProfileManagerConsumerProxy();
 
-   void detectedUser(int32_t seatID, int32_t userID, uint64_t sessionID);
-   void synchronizedUser(int32_t seatID, int32_t userID, uint64_t sessionID);
-   void stop(int32_t seatID, uint64_t sessionID);
+   void detectedUser(u_int32_t seatID, u_int32_t userID, uint64_t sessionID);
+   void synchronizedUser(u_int32_t seatID, u_int32_t userID, uint64_t sessionID);
+   void stop(u_int32_t seatID, uint64_t sessionID);
 
 };
 

@@ -9,6 +9,7 @@
 #include "EventMessageQ.h"
 #include <list>
 #include <cstdio>
+#include <unistd.h>
 
 using namespace std;
 
@@ -70,6 +71,7 @@ void EventReceiver::sendSetUser(int seatId, int userId){
 }
 
 
+
 EventReceiver::EventReceiver(EventMessageQ<PrflMgrTestTypes::ClientMsg>& clientQ, EventMessageQ<PrflMgrTestTypes::SrvMsg>& srvQ)
 : mClientQ(&clientQ)
 , mSrvQ(&srvQ)
@@ -82,6 +84,14 @@ EventReceiver::EventReceiver(EventMessageQ<PrflMgrTestTypes::ClientMsg>& clientQ
 
 
 EventReceiver::~EventReceiver() {
+}
+
+
+void EventReceiver::sendMessage2Client(char* message){
+   PrflMgrTestTypes::ClientMsg m;
+   m.mReceiveSelector = PrflMgrTestTypes::eClientInvalid;
+   m.mMessage = message;
+   mClientQ->push(m);
 }
 
 
@@ -160,27 +170,40 @@ bool EventReceiver::execute(TestBase& test){
 
    while (!checkDone()) {
       PrflMgrTestTypes::ClientMsg m = mClientQ->poll();
-      int clientId = selector2Int(m.mClientSelector);
-      if (clientId >= 0 && clientId < NUM_OF_TEST_CLIENTS) {
-         switch (m.mReceiveSelector) {
-         case PrflMgrTestTypes::eClientDetected:
-            onEvent(PrflMgrTestTypes::eTDetected, clientId << 16 | m.mSeatId << 8 | m.mUserId);
-            std::printf("s:c%i.detected(seat=%i, user=%i)\n", clientId, m.mSeatId, m.mUserId);
-            break;
-         case PrflMgrTestTypes::eClientSynchronized:
-            onEvent(PrflMgrTestTypes::eTSynced, clientId << 16 | m.mSeatId << 8 | m.mUserId);
-            std::printf("s:c%i.synced(seat=%i, user=%i)\n", clientId, m.mSeatId, m.mUserId);
-            break;
-         case PrflMgrTestTypes::eClientStop:
-            onEvent(PrflMgrTestTypes::eTStop, clientId << 16 | m.mSeatId << 8);
-            std::printf("s:c%i.stop(seat=%i)\n", clientId, m.mSeatId);
-            break;
-         }
-
-         mClients[clientId]->trigger(m, this);
-         mSrvQ->notify();
+      if (m.mReceiveSelector == PrflMgrTestTypes::eClientInvalid) {
+         std::printf("%s", m.mMessage.data());
       } else {
-         //add unknwon client event....
+         int clientId = selector2Int(m.mClientSelector);
+         if (clientId >= 0 && clientId < NUM_OF_TEST_CLIENTS) {
+            switch (m.mReceiveSelector) {
+            case PrflMgrTestTypes::eClientDetected:
+               onEvent(PrflMgrTestTypes::eTDetected, clientId << 16 | m.mSeatId << 8 | m.mUserId);
+               std::printf("s:c%i.detected(seat=%i, user=%i)\n", clientId, m.mSeatId, m.mUserId);
+               break;
+            case PrflMgrTestTypes::eClientSynchronized:
+               onEvent(PrflMgrTestTypes::eTSynced, clientId << 16 | m.mSeatId << 8 | m.mUserId);
+               std::printf("s:c%i.synced(seat=%i, user=%i)\n", clientId, m.mSeatId, m.mUserId);
+               break;
+            case PrflMgrTestTypes::eClientStop:
+               onEvent(PrflMgrTestTypes::eTStop, clientId << 16 | m.mSeatId << 8);
+               std::printf("s:c%i.stop(seat=%i)\n", clientId, m.mSeatId);
+               break;
+            }
+            mClients[clientId]->trigger(m, this);
+            mSrvQ->notify();
+         } else {
+            //add unknwon client event....
+         }
+      }
+   }
+   usleep(200);
+   while (!mClientQ->empty()) {
+      PrflMgrTestTypes::ClientMsg m = mClientQ->poll();
+      if (m.mReceiveSelector == PrflMgrTestTypes::eClientInvalid) {
+         std::printf("%s", m.mMessage.data());
+      } else {
+         std::printf("Only messages expected!");
+         exit(1);
       }
    }
    return true;

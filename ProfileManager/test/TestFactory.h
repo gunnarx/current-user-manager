@@ -25,6 +25,8 @@ public:
    ProfileManagerConsumerProxyBase* buildProxy(std::string address);
    bool                             registerService(CommonAPI::Stub* s, const std::string& address);
    CommonApiProfileManagerStub*     getStub();
+
+   EventReceiver* getEventReceiver(){return mEventReceiver;};
 };
 
 #endif /* TESTFACTORY_H_ */

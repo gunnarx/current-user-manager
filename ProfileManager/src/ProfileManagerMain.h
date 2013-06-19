@@ -10,12 +10,11 @@
 #define PROFILEMANAGERMAIN_H_
 
 #include "../include/CommonApi.h"
-#include "../include/IdentificationPlugin.h"
+#include "../include/CProfileManagerCtrl.h"
 
-class ProfileManagerCfg;
+class CProfileManagerCfg;
 class ProfileManagerLog;
 class ProfileManagerLogic;
-
 
 /**
  * Main class for the profile manager
@@ -30,20 +29,14 @@ public:
     * In the future all parameters can be set with a null pointer, if default behavior is OK.
     * However within the limits of the POC, currently all parameters must be provided.
     * @param factory    Needed to create CommmonAPI proxy and register stubs
-    * @param cfg        Contains the configuration like timeouts and dependency level for specific clients
     * @param logger     Contains the class instance enabling to log, should default to DLT
-    * @param numOfSeats Number of Seats to be supported by Profile Manager.
     */
-   ProfileManagerMain(CommonAPI::Factory* factory, ProfileManagerCfg* cfg, ProfileManagerLog* logger, int numOfSeats);
+   ProfileManagerMain(CommonAPI::Factory* factory, ProfileManagerLog* logger);
    virtual ~ProfileManagerMain();
 
+   CProfileManagerCtrl* getProfileManagerCtrl();
 
-   /**
-    * Identification plugins, once loaded from shared libraries, or instanciated by other means need to register
-    * with ProfileManager, so that the setUser interface is exposed to them.
-    * @param plugin  Pointer to the plugin that needs to be registered.
-    */
-   void registerPlugin(IdentificationPlugin* plugin);
+
 };
 
 #endif /* PROFILEMANAGERMAIN_H_ */

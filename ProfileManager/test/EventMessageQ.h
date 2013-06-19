@@ -29,6 +29,7 @@ namespace PrflMgrTestTypes {
    struct ClientMsg {
       EClientMsgType    mReceiveSelector;
       ClientSelector    mClientSelector;
+      std::string       mMessage;
       int               mSeatId;
       int               mUserId;
       uint64_t          mSessionId;
@@ -77,6 +78,7 @@ public:
    void              push(TheEventMessage m);
    void              notify();
    TheEventMessage   poll();
+   bool              empty();
 
 };
 
@@ -108,6 +110,14 @@ template<class TheEventMessage> TheEventMessage EventMessageQ<TheEventMessage>::
       mSrvQ.pop_front();
    pthread_mutex_unlock(&mReceiveCondMutex);
    return m;
+}
+
+template<class TheEventMessage> bool EventMessageQ<TheEventMessage>::empty(){
+   bool empty;
+   pthread_mutex_lock(&mReceiveCondMutex);
+      empty = mSrvQ.empty();
+   pthread_mutex_unlock(&mReceiveCondMutex);
+   return empty;
 }
 
 #endif /* EVENTMESSAGEQ_H_ */

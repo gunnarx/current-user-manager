@@ -37,9 +37,9 @@ public:
 
    ProfileManagerConsumerProxyBase* getConsumerProxy(ClientSelector s);
 
-   void registerMe(std::string consumerAddress, std::string appID, int32_t seatID);
+   void registerMe(std::string consumerAddress, std::string appID, u_int32_t seatID);
 
-   void unregisterMe(std::string consumerAddress, std::string appID, int32_t seatID);
+   void unregisterMe(std::string consumerAddress, std::string appID, u_int32_t seatID);
 
    void confirm(uint64_t sessionID);
 

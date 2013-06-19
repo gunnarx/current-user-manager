@@ -25,7 +25,7 @@ void CommonApiProfileManagerIntf::init(CommonApiProfileManagerStub* stub){
 }
 
 
-void CommonApiProfileManagerIntf::sendDetectedUser(ClientSelector clientId, int seatId, int userId, uint64_t sessionId){
+void CommonApiProfileManagerIntf::sendDetectedUser(ClientSelector clientId, u_int32_t seatId, u_int32_t userId, uint64_t sessionId){
    ProfileManagerConsumerProxyBase* p = mStub->getConsumerProxy(clientId);
    if (p != 0) {
       p->detectedUser(seatId, userId, sessionId);
@@ -33,7 +33,7 @@ void CommonApiProfileManagerIntf::sendDetectedUser(ClientSelector clientId, int 
 }
 
 
-void CommonApiProfileManagerIntf::sendSynchronizedUser(ClientSelector clientId, int seatId, int userId, uint64_t sessionId){
+void CommonApiProfileManagerIntf::sendSynchronizedUser(ClientSelector clientId, u_int32_t seatId, u_int32_t userId, uint64_t sessionId){
    ProfileManagerConsumerProxyBase* p = mStub->getConsumerProxy(clientId);
    if (p != 0) {
       p->synchronizedUser(seatId, userId, sessionId);
@@ -41,7 +41,7 @@ void CommonApiProfileManagerIntf::sendSynchronizedUser(ClientSelector clientId, 
 }
 
 
-void CommonApiProfileManagerIntf::sendStop(ClientSelector clientId, int seatId, uint64_t sessionId){
+void CommonApiProfileManagerIntf::sendStop(ClientSelector clientId, u_int32_t seatId, uint64_t sessionId){
    ProfileManagerConsumerProxyBase* p = mStub->getConsumerProxy(clientId);
    if (p != 0) {
       p->stop(seatId, sessionId);
