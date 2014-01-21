@@ -1,0 +1,162 @@
+/*****************************************************************
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (c) 2013 Harman International Industries, Inc.
+* All rights reserved
+****************************************************************/
+package org.genivi.profile_mgmt_ctrl
+
+/**
+ * Interface should be used by the Profile Manager Controller, which is responsible
+ * for detecting and setting users in the system.
+ */
+interface ProfileManagerCtrl {
+   version { major 1 minor 0 }
+   
+   /**
+    * Needs to be called by the Profile Manager Controller. Once called, the Profile
+    * Manager Controller is the sole responsible for detecting users on seat and to set
+    * them via the setUser function accordingly. Upon registration the Profile Manager
+    * Controller can chose which call-backs he is interested in. They will be send
+    * via the ProfileManagerCtrlConsumer interface back to the Profile Manager Controller. 
+    */
+   method registerMe { 
+      in {
+         String  consumerAddress
+         Boolean registerOnTimeOut
+         Boolean registerOnStateChangeStart
+         Boolean registerOnStateChangeStop
+         Boolean registerOnClientRegister
+         Boolean registerOnClientUnregister
+      }
+   }
+   
+   /**
+    * A registered Profile Manager Controller can set a user detected on a seat.
+    * This information will be propagated to all registered clients by the Profile Manager.
+    */
+   
+   method setUser {
+      in {
+         UInt32 userId
+         UInt32 seatId
+      }
+   } 
+   
+   /**
+    * If no user can be detected on a seat any more (or the user for a seat explicitly logs out)
+    * Profile Manager Controller has the responsibility to un-set the user user on the given seat.
+    */
+   method unsetUser {
+      in {
+         UInt32 seatId
+      }
+   }
+   
+   /**
+    * If the Profile Manager Controller receives a onTimeOut call via it's 
+    * ProfileManagerCtrlConsumer interface, the ProfileManager will have stop it's activities.
+    * Only after the Profile Manager Controller has given instructions on how to
+    * continue with the encountered timeout, the Profile Manager will continue.
+    */   
+   method timeOutAction {
+      in {
+         UInt64 timeOutSessionId
+         ETimeOutAction timeOutActionItem
+      }
+   }
+   
+   /**
+    * Defines the possible corrective actions, once a timeout occured 
+    */
+   enumeration ETimeOutAction {
+      eDropApplication     /* unregister the client, that caused the timeout and continue */
+      eIgnore              /* ignore that the timeout occurred, act as if the event was received  */
+      eReTime              /* Reset all timers and wait again */
+      eStopWaitForNewUser  /* Stop the current user switch, do nothing until new user has been set */
+      eReturnToOldUser     /* Since switch to new user has not been successful, reactivate last user  */
+   }
+   
+}
+
+/**
+ * Must be implemented/offered by the Profile Manager Controller, in order to receive events,
+ * that the Profile Manager needs to send to it's control instance.
+ */
+interface ProfileManagerCtrlConsumer {
+   version { major 1 minor 0}
+   
+   /**
+    * Will be received, when a registered client does not react timely to a use switch.
+    */
+   method onTimeOut{
+      in {
+         String appName
+         UInt32 userId
+         UInt32 seatId
+         ESignal s
+         UInt64 sessionId
+         Int32 timeElapsedMs
+         UInt64 timeOutSessionId
+      }
+   }
+   
+   /**
+    * Received after initiating a setUser command. It will be called for each dependency
+    * level.
+    */
+   method onStateChangeStart {
+      in {
+         UInt32 userId
+         UInt32 seatId
+         Int32 depLevel
+         ESignal s
+         UInt64 sessionId
+      }
+   }
+   
+   /**
+    * Received after receiving a onStateChangeStart call to indicate, that all clients within
+    * the dependency level specified have correctly answered.
+    */
+   method onStateChangeStop {
+      in {
+         UInt32 userId
+         UInt32 seatId
+         Int32 depLevel
+         ESignal s
+         UInt64 sessionId
+      }
+   }
+   
+   /**
+    * Received, once a client registered.
+    */
+   method onClientRegister{
+      in {
+         String appName
+         UInt32 seatId
+      }
+   }
+   
+   /**
+    * Received, if a client has unregistered.
+    */
+   method onClientUnregister {
+      in {
+         String appName
+         UInt32 seatId
+      }
+   }
+   
+   /**
+    * Profile Manager Clients need to answer the detectedUser with the a confirm call
+    * and stop with a stopped call. Amiss calls are communicated via the onTimeOut method.
+    */
+   enumeration ESignal { 
+      eConfirm
+      eStopped
+   }
+   
+}

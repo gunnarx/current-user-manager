@@ -1,1 +1,47 @@
-oo
+debug release!
+Profile Manager and Profile Manager Test are my extensions/rework of the Martin Leisener PoC
+Most of needed info can be found here:
+https://collab.genivi.org/wiki/display/genivi/SysInfraEGUserMgmtPersProfileManagerPOC
+https://collab.genivi.org/wiki/display/genivi/SysInfraEGUserMgtPersonalizationDef#SysInfraEGUserMgtPersonalizationDef-Migration
+https://collab.genivi.org/wiki/display/genivi/SysInfraEGUserMgmtPersProfileManager
+
+
+Profile Manager is utilizing:
+CommonAPI Dbus communication generated via Franca code generation from .fidl files,
+Async communication,
+Simple timeout mechanisms,
+set and unset User,
+register and unregister User,
+
+Profile Manager Test runs a test sequence:
+please use Sdedit software to view results (just copy paste results into soft downloaded from: http://sdedit.sourceforge.net/)
+If a test sequence for some reasons freezes, rerun it :)
+
+
+
+Common API specification:
+https://collab.genivi.org/wiki/display/genivi/SysInfraEGCppCommonAPISpecification
+
+Common API instalation (Very old guide ....):
+https://collab.genivi.org/wiki/display/genivi/SysInfraEGCommonIDLCommonAPIGuide
+
+If you have problem with the CommonAPI, write me mail, I will try to help you :)
+
+
+Below I've written my Eclipse settings, i hope it will help you
+
+I use the Eclipse Kepler (most recent version) configured as following:
+compiler:
+g++ -pthread -std=c++11 -I/usr/local/include/CommonAPI-2.1 -I/usr/local/include/dbus-1.0 -I/usr/local/lib/dbus-1.0/include
+
+linker:
+g++ -pthread -std=c++11 -L/usr/local/lib
+
+Libraries:
+CommonAPI
+CommonAPI-DBus
+dbus-1
+pthread
+
+before running Eclipse (each time!) I have to write command:
+export LD_LIBRARY_PATH="/usr/local/lib/"
