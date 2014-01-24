@@ -23,7 +23,6 @@
 class ProfileManagerMain {
 private:
    ProfileManagerLogic* mLogic;
-
 public:
    /**
     * Constructs the ProfileManager. Use it to initialize the ProfileManager Component.

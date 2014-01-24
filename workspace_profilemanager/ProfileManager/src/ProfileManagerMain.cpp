@@ -39,11 +39,32 @@ ProfileManagerMain::ProfileManagerMain()
 	//runs forever...
 	if (success){
 		while(true){
-			ProfileManagerEvents->run();
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			try {
+				ProfileManagerEvents->run();
+			}
+			catch (char e)
+			{
+				if(e == 'c'){
+					std::cout<<"CONFIG_FILE_ERROR\n Closing Profile Manager\n";
+					break;
+				}
+				else {
+					std::cout<<"UNKNOWN ERROR\n";
+					break;
+				}
+			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(150));
 		}
 	}
 	else std::cout << "stubs registration failed : closing Profile Manager" << std::endl;
+
+	//things to clean
+	delete intfClient;
+	delete intfController;
+	delete mLogic;
+	delete ProfileManagerEvents;
+
 }
 
 ProfileManagerMain::~ProfileManagerMain() {

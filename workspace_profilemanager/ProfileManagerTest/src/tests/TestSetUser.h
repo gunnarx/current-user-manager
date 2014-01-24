@@ -8,7 +8,7 @@
 #ifndef TESTSETUSER_H_
 #define TESTSETUSER_H_
 #include "TestBase.h"
-#include "_global_.h"
+#include "../_global_.h"
 
 class TestSetUser : public TestBase {
 private:

@@ -12,10 +12,10 @@
 #include <thread>
 
 #include <CommonAPI/CommonAPI.h>
-#include "ProfileManagerCtrlConsumer.h"
-#include "ProfileManagerCtrlConsumerProxy.h"
+#include "org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlConsumer.h"
+#include "org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlConsumerProxy.h"
 
-#include "_global_.h"
+#include "../_global_.h"
 
 typedef org::genivi::profile_mgmt_ctrl::ProfileManagerCtrlConsumer::ESignal ESignal;
 
@@ -29,7 +29,7 @@ typedef std::function<void(const CommonAPI::CallStatus&)> OnClientRegisterAsyncC
 typedef std::function<void(const CommonAPI::CallStatus&)> OnClientUnregisterAsyncCallback;
 
 //Callback handlers for the Async communication
-//THESE FUNCTIONS ARE INVOCED DIRECTLY AFTER CALL
+//THESE FUNCTIONS ARE INVOKED DIRECTLY AFTER CALL
 void callbackHandler_onTimeOut			(const CommonAPI::CallStatus& s);
 void callbackHandler_onStateChangeStart	(const CommonAPI::CallStatus& s);
 void callbackHandler_onStateChangeStop	(const CommonAPI::CallStatus& s);

@@ -9,8 +9,8 @@
 #define TESTUNREGISTER_H_
 
 #include "TestBase.h"
-#include "Client.h"
-#include "_global_.h"
+#include "../Client.h"
+#include "../_global_.h"
 
 class TestUnregister : public TestBase {
 private:

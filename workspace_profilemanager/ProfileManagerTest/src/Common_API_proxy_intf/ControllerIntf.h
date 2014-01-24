@@ -10,7 +10,7 @@
 
 #include <CommonAPI/CommonAPI.h>
 
-#include "_global_.h"
+#include "../_global_.h"
 
 #include <org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlProxy.h>
 #include <org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlProxyBase.h>

@@ -12,7 +12,7 @@
 #include <string>
 
 #include "CommonAPI/CommonAPI.h"
-#include "_global_.h"
+#include "../_global_.h"
 
 #include <org/genivi/profile_mgmt/ProfileManagerProxy.h>
 #include <org/genivi/profile_mgmt/ProfileManagerProxyBase.h>

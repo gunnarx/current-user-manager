@@ -15,10 +15,10 @@
 #include <thread>
 #include <future>
 
-#include "CommonAPI/CommonAPI.h"
-#include "ProfileManagerConsumerProxy.h"
+#include <CommonAPI/CommonAPI.h>
+#include "org/genivi/profile_mgmt/ProfileManagerConsumerProxy.h"
 
-#include "_global_.h"
+#include "../_global_.h"
 
 class CommonApiProfileManagerStub;
 

@@ -173,7 +173,7 @@ void ClientIntf::checkStatus(std::future<CommonAPI::CallStatus> &status){
 			std::cout << "#CallStatus::REMOTE_ERROR\n";
 			break;
 		default:
-			std::cout << "Unknown status\n";
+			std::cout << "#Unknown status\n";
 			break;
 		}
 	}

@@ -1,4 +1,10 @@
 debug release!
+
+to build go to workspace_profilemanager and run scrip cmake_script.sh (newest version of cmake neccesary!)
+in folder workspace_profilemanager/exec you will find both executables
+
+#cmake_eclipse_script.sh is not yet working, eclipse project needs to be set up manually#
+
 Profile Manager and Profile Manager Test are my extensions/rework of the Martin Leisener PoC
 Most of needed info can be found here:
 https://collab.genivi.org/wiki/display/genivi/SysInfraEGUserMgmtPersProfileManagerPOC
@@ -30,9 +36,17 @@ If you have problem with the CommonAPI, write me mail, I will try to help you :)
 
 Below I've written my Eclipse settings, i hope it will help you
 
-I use the Eclipse Kepler (most recent version) configured as following:
+I use the Eclipse Kepler (most recent version) with CDT and gcc v4.8 configured as following:
 compiler:
-g++ -pthread -std=c++11 -I/usr/local/include/CommonAPI-2.1 -I/usr/local/include/dbus-1.0 -I/usr/local/lib/dbus-1.0/include
+g++ -pthread -std=c++11
+
+in GCC C++ Compiler>Includes
+/usr/local/include/CommonAPI-2.1
+/usr/local/include/dbus-1.0
+/usr/local/lib/dbus-1.0/include
+"${workspace_loc:/${ProjName}/include}"
+"${workspace_loc:/${ProjName}/src-gen}"
+"${workspace_loc:/ProfileManager/src}"
 
 linker:
 g++ -pthread -std=c++11 -L/usr/local/lib
@@ -43,5 +57,14 @@ CommonAPI-DBus
 dbus-1
 pthread
 
-before running Eclipse (each time!) I have to write command:
+For ProfileManager and ProfileManagerTest create separate projects (with similar config).
+First start ProfileManager, than ProfileManagerTest. The test results are in output of ProfileManagerTest - copy paste it into sdedit too visualize results.
+
+If the code builds, but you have error during run you have to: 
+before running Eclipse (each time!) write commands
 export LD_LIBRARY_PATH="/usr/local/lib/"
+~/Downloads/eclipse/eclipse               #(or your path to eclipse)
+
+ProfileManager needs proper config, currently config is created with ProfileManagerTest.
+Please copy this config mannualy to the same folder where is ProfileManager executable 
+

@@ -8,8 +8,8 @@ const std::string serviceAddress_controllerStub = 		"local:org.genivi.controller
 // *no client addresses* ! each client has his own address inside class Client
 
 
-const double 	_TIMEOUT_SECONDS_WAITFORPROXY_ = 10;
-const double	_TIMEOUT_SECONDS_TESTWAITSFORRESPONSE_ = 10;
+const double 	_TIMEOUT_SECONDS_WAITFORPROXY_ = 5;
+const double	_TIMEOUT_SECONDS_TESTWAITSFORRESPONSE_ = 5;
 const int 		_TIMEOUT_SECONDS_WAITFORSTATUS_ = 1;
 
 const int _NUM_OF_TEST_CLIENTS_ = 10;

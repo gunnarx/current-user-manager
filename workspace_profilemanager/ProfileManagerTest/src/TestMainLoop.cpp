@@ -144,7 +144,10 @@ int main(void) {
 		try{
 			CurrentTest->execute();
 
-			delete CurrentTest;
+			if (CurrentTest!=0){
+				delete CurrentTest;
+				CurrentTest=0;
+			}
 			testCtr++;
 			CurrentTest = getNext(testCtr);
 			//wait some time for response
@@ -156,9 +159,15 @@ int main(void) {
 			else if(e =='e') std::cout<<"#Test error, aborting test execution\n";
 			else  std::cout<<"#Unknown test error, aborting test execution\n";
 
-			delete CurrentTest;
+			if (CurrentTest!=0){
+
+				delete CurrentTest;
+				CurrentTest=0;
+			}
 			testErrorRetryNum++;
 			std::cout << "[/c]" << std::endl;
+
+			CurrentTest = getNext(testCtr);
 			if(testErrorRetryNum < 3) continue;
 
 			success = false;

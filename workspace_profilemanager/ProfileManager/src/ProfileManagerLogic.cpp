@@ -76,25 +76,34 @@ void ProfileManagerLogic::readCfgFromFile(){
 	unsigned int version;
 	unsigned int numOfCfgs;
 	fstream cfgFile("profile_manager_cfg", ios::in | ios::binary);
-	cfgFile.read((char*)&version, sizeof(unsigned int));
-	cfgFile.read((char*)&(mCfg->mDefaultDepLevel), sizeof(int));
-	cfgFile.read((char*)&(mCfg->mDefaultTimeOutMs), sizeof(unsigned int));
-	cfgFile.read((char*)&(mCfg->mNumOfSeats), sizeof(unsigned int));
-	cfgFile.read((char*)&numOfCfgs, sizeof(unsigned int));
-	for (int i = 0; i < numOfCfgs; i++) {
-		ProfileManagerCfg::ClientCfg ccfg;
-		unsigned int nameLen;
-		cfgFile.read((char*)&nameLen, sizeof(unsigned int));
-		char name[nameLen+1];
-		name[nameLen] = 0;
-		cfgFile.read(name, nameLen);
-		ccfg.mAppName = name;
-		cfgFile.read((char*)&(ccfg.mSeatId), sizeof(unsigned int));
-		cfgFile.read((char*)&(ccfg.mDepLevel), sizeof(int));
-		cfgFile.read((char*)&(ccfg.mTimeOutMs), sizeof(int));
-		mCfg->mClientCfgs.push_back(ccfg);
+	if(cfgFile.good()){
+
+		cfgFile.read((char*)&version, sizeof(unsigned int));
+		cfgFile.read((char*)&(mCfg->mDefaultDepLevel), sizeof(int));
+		cfgFile.read((char*)&(mCfg->mDefaultTimeOutMs), sizeof(unsigned int));
+		cfgFile.read((char*)&(mCfg->mNumOfSeats), sizeof(unsigned int));
+		cfgFile.read((char*)&numOfCfgs, sizeof(unsigned int));
+		for (int i = 0; i < numOfCfgs; i++) {
+			ProfileManagerCfg::ClientCfg ccfg;
+			unsigned int nameLen;
+			cfgFile.read((char*)&nameLen, sizeof(unsigned int));
+			char name[nameLen+1];
+			name[nameLen] = 0;
+			cfgFile.read(name, nameLen);
+			ccfg.mAppName = name;
+			cfgFile.read((char*)&(ccfg.mSeatId), sizeof(unsigned int));
+			cfgFile.read((char*)&(ccfg.mDepLevel), sizeof(int));
+			cfgFile.read((char*)&(ccfg.mTimeOutMs), sizeof(int));
+			mCfg->mClientCfgs.push_back(ccfg);
+
+		}
+		cfgFile.close();
 	}
-	cfgFile.close();
+	else{
+		std::cout<<"Can't read config file\nConfig file does not exists!!\nPlease provide me config file...";
+		cfgFile.close();
+		throw 'c';
+	}
 }
 
 

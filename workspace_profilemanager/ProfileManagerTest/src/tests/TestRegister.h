@@ -9,8 +9,8 @@
 #define TESTREGISTER_H_
 
 #include "TestBase.h"
-#include "Client.h"
-#include "_global_.h"
+#include "../Client.h"
+#include "../_global_.h"
 
 class TestRegister : public TestBase {
 private:
