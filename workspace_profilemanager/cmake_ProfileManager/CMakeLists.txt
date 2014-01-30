@@ -1,10 +1,3 @@
-#COMMANDS:
-#cmake .
-#make
-
-#ELCIPSE PROJECT
-#cmake -G"Eclipse CDT4 - Unix Makefiles" -D CMAKE_BUILD_TYPE=Debug . 
-
 cmake_minimum_required (VERSION 2.6)
 project (ProfileManager)
 
@@ -15,15 +8,11 @@ ADD_DEFINITIONS(
     # Other flags
 )
 
+#Please, change this paths to yours if you have commonAPI and/or DBus installed in not default paths!
+#
 include_directories ("/usr/local/include/CommonAPI-2.1")
 include_directories ("/usr/local/include/dbus-1.0")
 include_directories ("/usr/local/lib/dbus-1.0/include")
-
-include_directories ("${PROJECT_SOURCE_DIR}/src")
-include_directories ("${PROJECT_SOURCE_DIR}/src-gen")
-
-link_directories ("${PROJECT_SOURCE_DIR}/src")
-link_directories ("${PROJECT_SOURCE_DIR}/src-gen") 
 
 link_directories ("/usr/local/include/CommonAPI-2.1")
 link_directories ("/usr/local/include/dbus-1.0")
@@ -33,6 +22,14 @@ include_directories ("/usr/local/lib/")
 link_directories ("/usr/local/lib/")
 
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/lib)
+#
+#################
+
+include_directories ("${PROJECT_SOURCE_DIR}/src")
+include_directories ("${PROJECT_SOURCE_DIR}/src-gen")
+
+link_directories ("${PROJECT_SOURCE_DIR}/src")
+link_directories ("${PROJECT_SOURCE_DIR}/src-gen") 
 
 add_executable(
 ProfileManager
@@ -66,6 +63,7 @@ dbus-1
 pthread
 )
 
+#to allow multithreading
 find_package( Threads )
 target_link_libraries( ProfileManager ${CMAKE_THREAD_LIBS_INIT} )
 
