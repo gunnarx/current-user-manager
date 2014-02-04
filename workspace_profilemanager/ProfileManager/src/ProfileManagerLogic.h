@@ -1,10 +1,11 @@
 /*****************************************************************
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/.
- * Copyright (c) 2012 Harman International Industries, Inc.
- * All rights reserved
- ****************************************************************/
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
+* All rights reserved
+* Author: Przemyslaw Bularz
+****************************************************************/
 
 #ifndef PROFILEMANAGERLOGIC_H_
 #define PROFILEMANAGERLOGIC_H_
@@ -32,7 +33,7 @@ typedef org::genivi::profile_mgmt_ctrl::ProfileManagerCtrlConsumer::ESignal ESig
  * Functions are not designed thread safe. If functions need to be called from
  * multiple threads (timer, plugins), it would be expected, that events trigger the functions,
  * rather than using a mutex.
- * Timeout behavior currently not part of POC
+ * TODO: Timeout behavior currently not implemented
  */
 class ProfileManagerLogic {
 private:

@@ -2,8 +2,9 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/.
- * Copyright (c) 2012 Harman International Industries, Inc.
+ * Copyright (C) 2014, GENIVI Alliance, Inc.
  * All rights reserved
+ * Author: Przemyslaw Bularz
  ****************************************************************/
 
 #include "ProfileManagerClientIntf.h"
@@ -32,7 +33,7 @@ ProfileManagerClientIntf::~ProfileManagerClientIntf() {
 void ProfileManagerClientIntf::sendDetectedUser(ClientSelector clientId, u_int32_t seatId, u_int32_t userId, uint64_t sessionId){
 	std::cout<<"Invoking sendDetectedUser  : calling: "<<clientId<<"\n";
 
-	//std::shared_ptr<org::genivi::profile_mgmt::ProfileManagerConsumerProxy<> >
+	//auto == std::shared_ptr<org::genivi::profile_mgmt::ProfileManagerConsumerProxy<> >
 	auto p = factory->buildProxy<org::genivi::profile_mgmt::ProfileManagerConsumerProxy>(clientId);
 
 	if (p != 0) {
@@ -46,14 +47,12 @@ void ProfileManagerClientIntf::sendDetectedUser(ClientSelector clientId, u_int32
 				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
 					throw 't';
 				}
-				// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
+			//make an async call to the client using a proxy
 			status = p->detectedUserAsync(seatId, userId, sessionId, Callback);
 			checkStatus(status);
 			std::cout<<"\n";
-
-
 
 		}
 		catch (char e) {
@@ -68,8 +67,8 @@ void ProfileManagerClientIntf::sendDetectedUser(ClientSelector clientId, u_int32
 void ProfileManagerClientIntf::sendSynchronizedUser(ClientSelector clientId, u_int32_t seatId, u_int32_t userId, uint64_t sessionId){
 	std::cout<<"Invoking sendSynchronizedUser : calling: "<<clientId<<"\n";
 
-	auto p = factory->buildProxy<org::genivi::profile_mgmt::ProfileManagerConsumerProxy>(clientId);  //std::shared_ptr<org::genivi::profile_mgmt::ProfileManagerConsumerProxy<> >
-
+	//auto == std::shared_ptr<org::genivi::profile_mgmt::ProfileManagerConsumerProxy<> >
+	auto p = factory->buildProxy<org::genivi::profile_mgmt::ProfileManagerConsumerProxy>(clientId);
 	if (p != 0) {
 		std::future<CommonAPI::CallStatus> status;
 		SynchronizedUserAsyncCallback Callback = callbackHandler_synchronizedUser;
@@ -81,9 +80,9 @@ void ProfileManagerClientIntf::sendSynchronizedUser(ClientSelector clientId, u_i
 				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
 					throw 't';
 				}
-				// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
+			//make an async call to the client using a proxy
 			status = p->synchronizedUserAsync(seatId, userId, sessionId, Callback);
 
 			checkStatus(status);
@@ -115,9 +114,9 @@ void ProfileManagerClientIntf::sendStop(ClientSelector clientId, u_int32_t seatI
 				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
 					throw 't';
 				}
-				// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
+			//make an async call to the client using a proxy
 			status = p->stopAsync(seatId, sessionId, Callback);
 			checkStatus(status);
 			std::cout<<"\n";
@@ -130,8 +129,13 @@ void ProfileManagerClientIntf::sendStop(ClientSelector clientId, u_int32_t seatI
 	else std::cout<<"Proxy Error\n";
 }
 
+/*
+ * Displays call status
+ *
+ * If your version of gcc does not support std::future or std::promise
+ * this function and it's every invocation can be safely commented out
+ */
 void ProfileManagerClientIntf::checkStatus(std::future<CommonAPI::CallStatus> &status){
-	//std::cout<<"waiting for status...\n";
 	std::future_status s;
 	s = status.wait_for(std::chrono::seconds(_TIMEOUT_SECONDS_WAITFORSTATUS_));
 	if(s == std::future_status::ready){

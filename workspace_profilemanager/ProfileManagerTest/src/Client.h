@@ -2,9 +2,11 @@
 * This Source Code Form is subject to the terms of the Mozilla Public
 * License, v. 2.0. If a copy of the MPL was not distributed with this file,
 * You can obtain one at http://mozilla.org/MPL/2.0/.
-* Copyright (c) 2012 Harman International Industries, Inc.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
 * All rights reserved
+* Author: Przemyslaw Bularz
 ****************************************************************/
+
 #ifndef CLIENT_H_
 #define CLIENT_H_
 
@@ -17,6 +19,14 @@
 
 class ClientStubImpl;
 class ClientIntf;
+
+/*
+ * This class represents the PM client
+ * Each Client contains it's own Client Stub and the Client Interface.
+ * Each client stub has unique serviceAddress (assigned in constructor).
+ * Clients do not register to the PM automatically.
+ * The registration of each client is part of test sequence.
+ */
 class Client {
 public:
    enum EClientStatus {

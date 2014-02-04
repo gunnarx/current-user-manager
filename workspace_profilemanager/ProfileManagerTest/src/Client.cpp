@@ -1,10 +1,12 @@
 /*****************************************************************
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/.
- * Copyright (c) 2012 Harman International Industries, Inc.
- * All rights reserved
- ****************************************************************/
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
+* All rights reserved
+* Author: Przemyslaw Bularz
+****************************************************************/
+
 #include "Client.h"
 
 #include <string>
@@ -15,7 +17,7 @@
 Client::Client(ClientSelector UID, int clientIdNum){
 	mUID = UID;
 	mClientIdNum = clientIdNum;
-	mAddressClientStub = "local:org.genivi." + UID +":org.genivi."+UID; //name convention not specified
+	mAddressClientStub = "local:org.genivi." + UID +":org.genivi."+UID; //DBUS ADDRESS NAMING CONVENTION IS NOT YET SPECIFIED
 
 	mState = EClientStatus::eNotRegistered;
 	mSeatId = -1;	//not yet assigned
@@ -23,11 +25,11 @@ Client::Client(ClientSelector UID, int clientIdNum){
 
 	std::shared_ptr<CommonAPI::Factory> factory = CommonAPI::Runtime::load()->createFactory();
 
-	/* Each client has his own commonAPI stub and Interface to make calls via proxy */
+	/* Each client has his own commonAPI Stub and Interface to make calls via proxy */
 	intfClient = new ClientIntf(factory,serviceAddress_profileManager_clientStub);
 	stubClient = std::make_shared<ClientStubImpl>(this);
 
-	bool success; //debug
+	bool success;
 	success = factory->getRuntime()->getServicePublisher()->registerService(stubClient, mAddressClientStub, factory);
 	if(success) std::cout << "#Client id: " << clientIdNum << " stub successfully registered on address: " << mAddressClientStub << std::endl;
 	else		std::cout << "#Client id: " << clientIdNum << " " << mAddressClientStub << " stub registration failed!!!" << std::endl;

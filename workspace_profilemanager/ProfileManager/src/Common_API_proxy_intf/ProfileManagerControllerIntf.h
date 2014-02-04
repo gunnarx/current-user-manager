@@ -2,14 +2,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/.
- * Copyright (c) 2012 Harman International Industries, Inc.
+ * Copyright (C) 2014, GENIVI Alliance, Inc.
  * All rights reserved
+ * Author: Przemyslaw Bularz
  ****************************************************************/
+
 #ifndef PROFILEMANAGERCONTROLLERINTF_H_
 #define PROFILEMANAGERCONTROLLERINTF_H_
 
 #include <time.h>
-#include <thread>
+#include <future>
+#include <string>
 
 #include <CommonAPI/CommonAPI.h>
 #include "org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlConsumer.h"
@@ -29,7 +32,7 @@ typedef std::function<void(const CommonAPI::CallStatus&)> OnClientRegisterAsyncC
 typedef std::function<void(const CommonAPI::CallStatus&)> OnClientUnregisterAsyncCallback;
 
 //Callback handlers for the Async communication
-//THESE FUNCTIONS ARE INVOKED DIRECTLY AFTER CALL
+//THESE FUNCTIONS ARE INVOKED DIRECTLY AFTER END OF CALL
 void callbackHandler_onTimeOut			(const CommonAPI::CallStatus& s);
 void callbackHandler_onStateChangeStart	(const CommonAPI::CallStatus& s);
 void callbackHandler_onStateChangeStop	(const CommonAPI::CallStatus& s);
@@ -51,9 +54,10 @@ private:
 	void checkStatus(std::future<CommonAPI::CallStatus> &status);
 
 public:
+	//Calls to the controller will be made to this address!
 	std::string ServiceAddress;
 
-	ProfileManagerControllerIntf(	std::shared_ptr<CommonAPI::Factory> &factory);//, std::string ServiceAddress);
+	ProfileManagerControllerIntf(std::shared_ptr<CommonAPI::Factory> &factory);
 	virtual ~ProfileManagerControllerIntf();
 
 	void sendOnTimeOut			(const std::string& appName, const uint32_t& userId, const uint32_t& seatId, const ESignal& s, const uint64_t& sessionId, const int32_t& timeElapsedMs, const uint64_t& timeOutSessionId);

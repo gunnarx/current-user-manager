@@ -1,10 +1,11 @@
 /*****************************************************************
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/.
- * Copyright (c) 2012 Harman International Industries, Inc.
- * All rights reserved
- ****************************************************************/
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
+* All rights reserved
+* Author: Przemyslaw Bularz
+****************************************************************/
 
 #include "ProfileManagerLogic.h"
 
@@ -83,6 +84,7 @@ void ProfileManagerLogic::readCfgFromFile(){
 		cfgFile.read((char*)&(mCfg->mDefaultTimeOutMs), sizeof(unsigned int));
 		cfgFile.read((char*)&(mCfg->mNumOfSeats), sizeof(unsigned int));
 		cfgFile.read((char*)&numOfCfgs, sizeof(unsigned int));
+
 		for (int i = 0; i < numOfCfgs; i++) {
 			ProfileManagerCfg::ClientCfg ccfg;
 			unsigned int nameLen;

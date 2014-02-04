@@ -1,15 +1,39 @@
-/*
- * EventHandler.h
- *
- *  Created on: Dec 20, 2013
- *      Author: pbuli
- */
+/*****************************************************************
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
+* All rights reserved
+* Author: Przemyslaw Bularz
+****************************************************************/
 
 #include "ProfileManagerEventHandler.h"
 
-
+//event implementation
 event::event(){};
 event::~event(){};
+
+
+
+//event_handler implementation
+event_handler::event_handler(ProfileManagerLogic * ptr):ptrLogic(ptr){}
+event_handler::~event_handler(){}
+
+void event_handler::run(){
+	while(!eventQueue.empty()){
+		eventQueue.front()->execute(ptrLogic);
+		eventQueue.pop();
+		std::cout<<"event successfully executed!\t Number of events left in queue: "<<eventQueue.size()<<"\n\n";
+	}
+}
+
+
+/*
+ * THE REST OF THIS FILE HOLDS IMPLEMENTATIONS OF ALL EVENTS
+ * Event implementations are gathered in one place to ensure transparency and clarity of the code
+ * Specific implementation of all events :
+ */
+
 
 //event_logicClientReceive_Register
 event_logicClientReceive_Register::event_logicClientReceive_Register(ClientSelector clientId, std::string appID, int seatID){
@@ -93,17 +117,7 @@ void event_logicControllerReceive_unsetUser::execute(ProfileManagerLogic * ptrLo
 }
 
 
-//event_handler
-event_handler::event_handler(ProfileManagerLogic * ptr):ptrLogic(ptr){}
-event_handler::~event_handler(){}
 
-void event_handler::run(){
-	while(!eventQueue.empty()){
-		eventQueue.front()->execute(ptrLogic);
-		eventQueue.pop();
-		std::cout<<"event successfully executed!\t Number of events left in queue: "<<eventQueue.size()<<"\n\n";
-	}
-}
 
 
 

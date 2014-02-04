@@ -1,3 +1,11 @@
+/*****************************************************************
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
+* All rights reserved
+* Author: Przemyslaw Bularz
+****************************************************************/
 
 #ifndef CONTROLLERSTUBIMPL_H_
 #define CONTROLLERSTUBIMPL_H_
@@ -11,14 +19,8 @@ class Controller;
 class ControllerIntf;
 
 /**
- * Provides a default implementation for ProfileManagerCtrlStubRemoteEvent and
- * ProfileManagerCtrlStub. Method callbacks have an empty implementation,
- * remote set calls on attributes will always change the value of the attribute
- * to the one received.
- *
- * Override this stub if you only want to provide a subset of the functionality
- * that would be defined for this service, and/or if you do not need any non-default
- * behaviour.
+ * IMPLEMENTATION OF ProfileManagerCtrlConsumerStubDefault STUB METHODS
+ * provides an interface for PM to communicate with the controller
  */
 class ControllerStubImpl : public org::genivi::profile_mgmt_ctrl::ProfileManagerCtrlConsumerStubDefault {
 

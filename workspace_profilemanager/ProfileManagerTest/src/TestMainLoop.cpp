@@ -1,10 +1,12 @@
 /*****************************************************************
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/.
- * Copyright (c) 2012 Harman International Industries, Inc.
- * All rights reserved
- ****************************************************************/
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
+* All rights reserved
+* Author: Przemyslaw Bularz
+****************************************************************/
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -24,6 +26,9 @@
 
 using namespace std;
 
+/*
+ * Returns next test instance
+ */
 TestBase* getNext(int i){
 	switch (i) {
 	case 0: return new TestSetUser(i,1,2);
@@ -53,21 +58,34 @@ TestBase* getNext(int i){
 	return 0;
 }
 
-void createClient(ProfileManagerCfg & cfg, std::vector<Client*> & clientVect, ClientSelector mAppName, int32_t mDepLevel, u_int32_t mSeatId)
+/*
+ * Creates a single client Config
+ */
+void createClient(ProfileManagerCfg & cfg, std::vector<Client*> & clientVect, ClientSelector appName, u_int32_t seatId, int32_t depLevel, int32_t timeOutMs)
 {
 	static int client_num;
+
+	//create new client
 	ProfileManagerCfg::ClientCfg clientCfg;
-	clientCfg.mAppName = mAppName ;
-	clientCfg.mDepLevel =  mDepLevel;
-	clientCfg.mSeatId = mSeatId;
+	clientCfg.mAppName = appName ;
+	clientCfg.mSeatId = seatId;
+	clientCfg.mDepLevel =  depLevel;
+	clientCfg.mTimeOutMs =  timeOutMs;
+
+	//push to client config
 	cfg.mClientCfgs.push_back(clientCfg);
 
-	clientVect.push_back(new Client(mAppName, client_num));
-	client_num++;
+	//push to client vect
+	clientVect.push_back(new Client(appName, client_num));
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	client_num++;
+	//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
+/*
+ * Creates PM config, writes it to "profile_manager_cfg" file
+ * TODO: To be replaced by external sricpt
+ */
 void createConfig(ProfileManagerCfg & cfg, std::vector<Client*> & clientVect){
 
 	unsigned int version = 0x0001 << 16 | 0x0000;
@@ -76,16 +94,17 @@ void createConfig(ProfileManagerCfg & cfg, std::vector<Client*> & clientVect){
 	cfg.mDefaultTimeOutMs = 5000;
 	cfg.mNumOfSeats = 5;
 
-	createClient(cfg, clientVect, "Client_0", -1, -1);
-	createClient(cfg, clientVect, "Client_1", -1, -1);
-	createClient(cfg, clientVect, "Client_2", -1, -1);
-	createClient(cfg, clientVect, "Client_3", -1, -1);
-	createClient(cfg, clientVect, "Client_4", 10, -1);
-	createClient(cfg, clientVect, "Client_5", 10, -1);
-	createClient(cfg, clientVect, "Client_6", 100, -1);
-	createClient(cfg, clientVect, "Client_7", 100, -1);
-	createClient(cfg, clientVect, "Client_8", 1000, -1);
-	createClient(cfg, clientVect, "Client_9", 1000, -1);
+	//name, seatId, depLevel, timeOutMs
+	createClient(cfg, clientVect, "Client_0", -1, -1, 	cfg.mDefaultTimeOutMs);
+	createClient(cfg, clientVect, "Client_1", -1, -1,	cfg.mDefaultTimeOutMs);
+	createClient(cfg, clientVect, "Client_2", -1, -1, 	cfg.mDefaultTimeOutMs);
+	createClient(cfg, clientVect, "Client_3", -1, -1, 	cfg.mDefaultTimeOutMs);
+	createClient(cfg, clientVect, "Client_4", -1, 10, 	cfg.mDefaultTimeOutMs);
+	createClient(cfg, clientVect, "Client_5", -1, 10, 	cfg.mDefaultTimeOutMs);
+	createClient(cfg, clientVect, "Client_6", -1, 100, 	cfg.mDefaultTimeOutMs);
+	createClient(cfg, clientVect, "Client_7", -1, 100, 	cfg.mDefaultTimeOutMs);
+	createClient(cfg, clientVect, "Client_8", -1, 1000, cfg.mDefaultTimeOutMs);
+	createClient(cfg, clientVect, "Client_9", -1, 1000, cfg.mDefaultTimeOutMs);
 
 	//write to file
 	fstream cfgFile("profile_manager_cfg", ios::out | ios::binary);
@@ -95,7 +114,9 @@ void createConfig(ProfileManagerCfg & cfg, std::vector<Client*> & clientVect){
 	cfgFile.write((char*)&(cfg.mNumOfSeats), sizeof(unsigned int));
 
 	unsigned int numOfCfgs = cfg.mClientCfgs.size();
+
 	cfgFile.write((char*)&numOfCfgs, sizeof(unsigned int));
+
 	for (vector<ProfileManagerCfg::ClientCfg>::const_iterator cfgIt = cfg.mClientCfgs.begin(); cfgIt != cfg.mClientCfgs.end(); cfgIt++) {
 		unsigned int nameLen = (*cfgIt).mAppName.size();
 		cfgFile.write((char*)&nameLen, sizeof(unsigned int));
@@ -109,8 +130,11 @@ void createConfig(ProfileManagerCfg & cfg, std::vector<Client*> & clientVect){
 
 }
 
-
+/*
+ * Executes test sequence, display results
+ */
 int main(void) {
+	/* create config: */
 	ProfileManagerCfg cfg;
 	std::vector<Client*> clientVect;
 	createConfig( cfg, clientVect);
@@ -122,13 +146,12 @@ int main(void) {
 	}
 	std::cout << endl;
 
+
 	/* Create Controller */
 	Controller * ptrController = new Controller();
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(250));
-	std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
-
+	/* Start test sequence */
 	int testCtr = 0;
 	int testErrorRetryNum = 0;
 
@@ -136,8 +159,6 @@ int main(void) {
 	bool success = true;
 
 	while (CurrentTest != 0){
-
-		//if(testCtr==3) break;
 		std::cout << "[c Test " << testCtr << "]" << std::endl;
 		CurrentTest->prepare(clientVect , ptrController);
 
@@ -150,12 +171,14 @@ int main(void) {
 			}
 			testCtr++;
 			CurrentTest = getNext(testCtr);
-			//wait some time for response
+
+			//wait some time for response (needed only to keep test results in proper order)
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			std::cout << "[/c]" << std::endl;
 		}
 		catch(char e){
-			if(e =='e' && testErrorRetryNum < 3) std::cout<<"#Test error, lunching test again\n";
+			/* in case of error: */
+			if(e =='e' && testErrorRetryNum < _MAX_NUM_OF_TEST_ERROR_RETRY_) std::cout<<"#Test error, relunching test again\n";
 			else if(e =='e') std::cout<<"#Test error, aborting test execution\n";
 			else  std::cout<<"#Unknown test error, aborting test execution\n";
 
@@ -168,7 +191,7 @@ int main(void) {
 			std::cout << "[/c]" << std::endl;
 
 			CurrentTest = getNext(testCtr);
-			if(testErrorRetryNum < 3) continue;
+			if(testErrorRetryNum < _MAX_NUM_OF_TEST_ERROR_RETRY_) continue;
 
 			success = false;
 			break;
@@ -176,7 +199,8 @@ int main(void) {
 	}
 
 	std::cout<<"\n#testErrorRetryNum: "<<testErrorRetryNum <<std::endl;
-	//some time to wait for all massages
+
+	//some time to wait for all massages (needed only as PM test ends faster than PM messages arrives to PM test)
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	if (success) {
 		printf("#FINISHED SUCCESSFULL!\n");

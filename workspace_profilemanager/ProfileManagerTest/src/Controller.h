@@ -2,13 +2,15 @@
 * This Source Code Form is subject to the terms of the Mozilla Public
 * License, v. 2.0. If a copy of the MPL was not distributed with this file,
 * You can obtain one at http://mozilla.org/MPL/2.0/.
-* Copyright (c) 2012 Harman International Industries, Inc.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
 * All rights reserved
+* Author: Przemyslaw Bularz
 ****************************************************************/
+
 #ifndef CONTROLLER_H_
 #define CONTROLLER_H_
 
-#include <list>
+//#include <list>
 
 #include "Common_API_stubs_implementation/ControllerStubImpl.h"
 #include "Common_API_proxy_intf/ControllerIntf.h"
@@ -20,12 +22,15 @@ typedef org::genivi::profile_mgmt_ctrl::ProfileManagerCtrlConsumer::ESignal ESig
 
 class ControllerIntf;
 class ControllerStubImpl;
+
+/*
+ * This class represents  the PM controller
+ * Controller contains the Controller Stub and the Controller Interface
+ * Controller registers to the PM in it's constructor during creation.
+ */
 class Controller {
 public:
 	std::shared_ptr<ControllerStubImpl> CtrlStub;
-   enum EClientStatus {
-      eNotRegistered, eStop, eStopped, eDetected, eConfirmed, eSynced
-   };
 
 private:
    std::shared_ptr<ControllerStubImpl> stubController;

@@ -1,10 +1,11 @@
 /*****************************************************************
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/.
- * Copyright (c) 2012 Harman International Industries, Inc.
- * All rights reserved
- ****************************************************************/
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
+* All rights reserved
+* Author: Przemyslaw Bularz
+****************************************************************/
 
 #include "ClientIntf.h"
 
@@ -42,7 +43,6 @@ void ClientIntf::sendRegisterMe(const std::string& consumerAddress, const std::s
 				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
 					throw 't';
 				}
-				// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
 			status = p->registerMeAsync(consumerAddress, appID, seatID, Callback);
@@ -71,7 +71,6 @@ void ClientIntf::sendUnregisterMe(const std::string& consumerAddress, const std:
 				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
 					throw 't';
 				}
-				// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
 			status = p->unregisterMeAsync(consumerAddress, appID, seatID, Callback);
@@ -101,7 +100,6 @@ void ClientIntf::sendConfirm(const uint64_t& sessionID)
 				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
 					throw 't';
 				}
-				// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
 			status = p->confirmAsync(sessionID, Callback);
@@ -132,7 +130,6 @@ void ClientIntf::sendStopped(const uint64_t& sessionID)
 				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
 					throw 't';
 				}
-				// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
 			status = p->stoppedAsync(sessionID, Callback);
@@ -148,7 +145,12 @@ void ClientIntf::sendStopped(const uint64_t& sessionID)
 
 }
 
-
+/*
+ * Displays call status
+ *
+ * If your version of gcc does not support std::future or std::promise
+ * this function and it's every invocation can be safely commented out
+ */
 void ClientIntf::checkStatus(std::future<CommonAPI::CallStatus> &status){
 	//std::cout<<"waiting for status...\n";
 	std::future_status s;

@@ -1,10 +1,12 @@
 /*****************************************************************
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/.
- * Copyright (c) 2012 Harman International Industries, Inc.
- * All rights reserved
- ****************************************************************/
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
+* All rights reserved
+* Author: Przemyslaw Bularz
+****************************************************************/
+
 #ifndef PROFILEMANAGERLOG_H_
 #define PROFILEMANAGERLOG_H_
 
@@ -18,7 +20,7 @@
  * On a running IVI an instance of this class, which reports to DLT should be given
  * to the ProfileManagerLogic constructor
  *
- * Logger is not yet implemented
+ * LOGGER IS NOT YET IMPLEMENTED
  */
 class ProfileManagerLog {
 public:

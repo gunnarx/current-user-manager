@@ -1,19 +1,21 @@
 /*****************************************************************
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/.
- * Copyright (c) 2012 Harman International Industries, Inc.
- * All rights reserved
- ***************************************************************/
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
+* All rights reserved
+* Author: Przemyslaw Bularz
+****************************************************************/
 
 #include "ProfileManagerMain.h"
+
 
 ProfileManagerMain::ProfileManagerMain()
 : mLogic(0) {
 
 	bool success;
 
-	auto log = std::make_shared<Logger>();						//logger is not yet implemented
+	auto log = std::make_shared<Logger>();//logger is not yet implemented
 
 	std::shared_ptr<CommonAPI::Factory> factory = CommonAPI::Runtime::load()->createFactory();
 
@@ -54,7 +56,7 @@ ProfileManagerMain::ProfileManagerMain()
 				}
 			}
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(150));
+			std::this_thread::sleep_for(std::chrono::milliseconds(_EVENT_HANDLER_LOOP_WAIT_TIME_MS_));
 		}
 	}
 	else std::cout << "stubs registration failed : closing Profile Manager" << std::endl;

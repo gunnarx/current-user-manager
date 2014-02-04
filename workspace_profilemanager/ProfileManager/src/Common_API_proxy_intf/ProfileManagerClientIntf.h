@@ -2,18 +2,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/.
- * Copyright (c) 2012 Harman International Industries, Inc.
+ * Copyright (C) 2014, GENIVI Alliance, Inc.
  * All rights reserved
+ * Author: Przemyslaw Bularz
  ****************************************************************/
+
 #ifndef PROFILEMANAGERCLIENTINTF_H_
 #define PROFILEMANAGERCLIENTINTF_H_
 
 
-#include <map>
-#include <string>
 #include <time.h>
-#include <thread>
 #include <future>
+#include <string>
 
 #include <CommonAPI/CommonAPI.h>
 #include "org/genivi/profile_mgmt/ProfileManagerConsumerProxy.h"
@@ -30,7 +30,7 @@ typedef std::function<void(const CommonAPI::CallStatus&)> SynchronizedUserAsyncC
 typedef std::function<void(const CommonAPI::CallStatus&)> StopAsyncCallback;
 
 //Callback handlers for the Async communication
-//THESE FUNCTIONS ARE INVOCED DIRECTLY AFTER CALL
+//THESE FUNCTIONS ARE INVOKED DIRECTLY AFTER END OF CALL
 void callbackHandler_detectedUser(const CommonAPI::CallStatus& s);
 void callbackHandler_synchronizedUser(const CommonAPI::CallStatus& s);
 void callbackHandler_stop(const CommonAPI::CallStatus& s);
@@ -44,13 +44,12 @@ void callbackHandler_stop(const CommonAPI::CallStatus& s);
  */
 class ProfileManagerClientIntf {
 private:
-	//CommonApiProfileManagerStub* mStub;
 	std::shared_ptr<CommonAPI::Factory> factory;
 
 	void checkStatus(std::future<CommonAPI::CallStatus> &status);
 
 public:
-	ProfileManagerClientIntf(	std::shared_ptr<CommonAPI::Factory> &factory);
+	ProfileManagerClientIntf(std::shared_ptr<CommonAPI::Factory> &factory);
 	virtual ~ProfileManagerClientIntf();
 
 	void sendDetectedUser(ClientSelector clientId, u_int32_t seatId, u_int32_t userId, uint64_t sessionId);

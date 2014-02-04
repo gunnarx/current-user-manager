@@ -2,8 +2,9 @@
 * This Source Code Form is subject to the terms of the Mozilla Public
 * License, v. 2.0. If a copy of the MPL was not distributed with this file,
 * You can obtain one at http://mozilla.org/MPL/2.0/.
-* Copyright (c) 2012 Harman International Industries, Inc.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
 * All rights reserved
+* Author: Przemyslaw Bularz
 ****************************************************************/
 
 #ifndef PROFILEMANAGERMAIN_H_
@@ -17,8 +18,11 @@
 #include "Common_API_stubs_implementation/ProfileManagerStubImpl.h"
 
 
-/**
- * Main class for the profile manager
+/*
+ * This is main PM class, it creates an instance of logger, Client and Controller interfaces,
+ * event handler, Client and Controller stubs.
+ * Class constructor runs forever, event handler awaits for new events and executes them,
+ * therefore provides whole PM functionality
  */
 class ProfileManagerMain {
 private:

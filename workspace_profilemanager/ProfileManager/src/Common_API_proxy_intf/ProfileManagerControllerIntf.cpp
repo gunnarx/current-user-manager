@@ -2,8 +2,9 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/.
- * Copyright (c) 2012 Harman International Industries, Inc.
+ * Copyright (C) 2014, GENIVI Alliance, Inc.
  * All rights reserved
+ * Author: Przemyslaw Bularz
  ****************************************************************/
 
 #include "ProfileManagerControllerIntf.h"
@@ -26,7 +27,6 @@ void callbackHandler_onClientUnregister(const CommonAPI::CallStatus& s){
 
 ProfileManagerControllerIntf::ProfileManagerControllerIntf
 (std::shared_ptr<CommonAPI::Factory> &factory) : factory(factory){
-	//std::cout << "ProfileManagerControllerIntf created\n";
 }
 
 
@@ -50,9 +50,9 @@ void ProfileManagerControllerIntf::sendOnTimeOut(const std::string& appName, con
 				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
 					throw 't';
 				}
-				// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
+			//make an async call to the controller using a proxy
 			status = p->onTimeOutAsync(appName, userId, seatId, s,  sessionId, timeElapsedMs, timeOutSessionId, Callback);
 
 			checkStatus(status);
@@ -84,10 +84,10 @@ void ProfileManagerControllerIntf::sendOnStateChangeStart(const uint32_t& userId
 				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
 					throw 't';
 				}
-				// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
-			status = p->onStateChangeStartAsync(userId, seatId, depLevel, s,  sessionId, Callback);
 
+			//make an async call to the controller using a proxy
+			status = p->onStateChangeStartAsync(userId, seatId, depLevel, s,  sessionId, Callback);
 
 			checkStatus(status);
 			std::cout<<"\n";
@@ -118,9 +118,9 @@ void ProfileManagerControllerIntf::sendOnStateChangeStop(const uint32_t& userId,
 				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
 					throw 't';
 				}
-				// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
+			//make an async call to the controller using a proxy
 			status = p->onStateChangeStopAsync(userId, seatId, depLevel, s,  sessionId, Callback);
 
 			checkStatus(status);
@@ -148,9 +148,9 @@ void ProfileManagerControllerIntf::sendOnClientRegister(const std::string& appNa
 				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
 					throw 't';
 				}
-				// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
+			//make an async call to the controller using a proxy
 			status = p->onClientRegisterAsync(appName, seatId, Callback);
 
 			checkStatus(status);
@@ -179,9 +179,9 @@ void ProfileManagerControllerIntf::sendOnClientUnregister(const std::string& app
 				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
 					throw 't';
 				}
-				// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
+			//make an async call to the controller using a proxy
 			status = p->onClientUnregisterAsync(appName, seatId, Callback);
 
 			checkStatus(status);
@@ -195,9 +195,13 @@ void ProfileManagerControllerIntf::sendOnClientUnregister(const std::string& app
 	else std::cout<<"Proxy Error\n";
 }
 
-
+/*
+ * Displays call status
+ *
+ * If your version of gcc does not support std::future or std::promise
+ * this function and it's every invocation can be safely commented out
+ */
 void ProfileManagerControllerIntf::checkStatus(std::future<CommonAPI::CallStatus> &status){
-	//std::cout<<"waiting for status...\n";
 	std::future_status s;
 	s = status.wait_for(std::chrono::seconds(_TIMEOUT_SECONDS_WAITFORSTATUS_));
 	if(s == std::future_status::ready){

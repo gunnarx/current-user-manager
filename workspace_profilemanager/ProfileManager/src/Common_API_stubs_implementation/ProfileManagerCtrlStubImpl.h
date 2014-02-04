@@ -1,3 +1,11 @@
+/*****************************************************************
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
+* All rights reserved
+* Author: Przemyslaw Bularz
+****************************************************************/
 
 #ifndef PROFILEMANAGERCTRLSTUBIMPL_H_
 #define PROFILEMANAGERCTRLSTUBIMPL_H_
@@ -10,14 +18,7 @@
  * IMPLEMENTATION OF : ProfileManagerCtrlStubDefault : STUB METHODS
  * THESE METHODS ARE INVOKED BY CONTROLLER via CommonAPI DBus
  *
- * Provides a default implementation for ProfileManagerCtrlStubRemoteEvent and
- * ProfileManagerCtrlStub. Method callbacks have an empty implementation,
- * remote set calls on attributes will always change the value of the attribute
- * to the one received.
- *
- * Override this stub if you only want to provide a subset of the functionality
- * that would be defined for this service, and/or if you do not need any non-default
- * behaviour.
+ * When a PM stub receives a call, it creates object of proper event which is pushed to PM EventHandler queue.
  */
 class ProfileManagerCtrlStubImpl : public org::genivi::profile_mgmt_ctrl::ProfileManagerCtrlStubDefault {
 

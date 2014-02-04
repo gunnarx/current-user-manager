@@ -1,9 +1,18 @@
+/*****************************************************************
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this file,
+* You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (C) 2014, GENIVI Alliance, Inc.
+* All rights reserved
+* Author: Przemyslaw Bularz
+****************************************************************/
+
 #include "Controller.h"
 
 
 Controller::Controller(){
 
-	bool success; //debug
+	bool success;
 
 	//serviceAddress_profileManager_controllerStub 	!!! to this address we will call	  !!!
 	//serviceAddress_controllerStub					!!! on this address we will be called !!!
