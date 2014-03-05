@@ -1,29 +1,26 @@
 cmake_minimum_required (VERSION 2.6)
 project (ProfileManager)
 
-SET(PROJECT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/../ProfileManager")
+#SET(PROJECT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/../ProfileManager") CMAKE moved to root folder
 
 ADD_DEFINITIONS(
 	-std=c++11 # Or -std=c++0x
-    # Other flags
 )
 
-#Please, change this paths to yours if you have commonAPI and/or DBus installed in not default paths!
-#
-include_directories ("/usr/local/include/CommonAPI-2.1")
-include_directories ("/usr/local/include/dbus-1.0")
-include_directories ("/usr/local/lib/dbus-1.0/include")
+#path to search for cmake package find modules
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/") 
 
-link_directories ("/usr/local/include/CommonAPI-2.1")
-link_directories ("/usr/local/include/dbus-1.0")
-link_directories ("/usr/local/lib/dbus-1.0/include")
+find_package(DBUS REQUIRED)
+find_package(CommonAPI REQUIRED)
+find_package(CommonAPI_DBus REQUIRED)
 
-include_directories ("/usr/local/lib/")
-link_directories ("/usr/local/lib/")
+include_directories(${COMMON_API_INCLUDE_DIRS})
+include_directories(${COMMON_API_DBUS_INCLUDE_DIRS})
+include_directories(${DBUS_INCLUDE_DIRS})
 
-set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/lib)
-#
-#################
+link_directories(${COMMON_API_INCLUDE_DIRS})
+
+#source code
 
 include_directories ("${PROJECT_SOURCE_DIR}/src")
 include_directories ("${PROJECT_SOURCE_DIR}/src-gen")
