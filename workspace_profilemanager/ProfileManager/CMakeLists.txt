@@ -6,7 +6,7 @@ project (ProfileManager)
 ADD_DEFINITIONS(
 	-std=c++11 # Or -std=c++0x
 )
-set (CMAKE_VERBOSE_MAKEFILE true)
+#set (CMAKE_VERBOSE_MAKEFILE true)
 #path to search for cmake package find modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/") 
 
@@ -18,15 +18,15 @@ include_directories(${COMMON_API_INCLUDE_DIRS})
 include_directories(${COMMON_API_DBUS_INCLUDE_DIRS})
 include_directories(${DBUS_INCLUDE_DIRS})
 
-link_directories(${COMMON_API_INCLUDE_DIRS})
+#link_directories(${COMMON_API_INCLUDE_DIRS})
 
 #source code
 
 include_directories ("${PROJECT_SOURCE_DIR}/src")
 include_directories ("${PROJECT_SOURCE_DIR}/src-gen")
 
-link_directories ("${PROJECT_SOURCE_DIR}/src")
-link_directories ("${PROJECT_SOURCE_DIR}/src-gen") 
+#link_directories ("${PROJECT_SOURCE_DIR}/src")
+#link_directories ("${PROJECT_SOURCE_DIR}/src-gen") 
 
 add_executable(
 ProfileManager
@@ -65,8 +65,8 @@ find_package( Threads )
 target_link_libraries( ProfileManager ${CMAKE_THREAD_LIBS_INIT} )
 
 #neccessary to link install target against commonApi
-set_target_properties(ProfileManager PROPERTIES 
-                      INSTALL_RPATH_USE_LINK_PATH TRUE)
+#set_target_properties(ProfileManager PROPERTIES 
+#                      INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 INSTALL(TARGETS ProfileManager
         DESTINATION "bin"
