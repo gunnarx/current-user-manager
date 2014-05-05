@@ -34,6 +34,13 @@ class ProfileManagerCtrl {
 
     static inline const char* getInterfaceId();
     static inline CommonAPI::Version getInterfaceVersion();
+    enum class ESignal: int32_t {
+        eConfirm,
+        eStopped
+    };
+    
+    // Definition of a comparator still is necessary for GCC 4.4.1, topic is fixed since 4.5.1
+    struct ESignalComparator;
     enum class ETimeOutAction: int32_t {
         eDropApplication,
         eIgnore,
@@ -55,6 +62,20 @@ CommonAPI::Version ProfileManagerCtrl::getInterfaceVersion() {
     return CommonAPI::Version(1, 0);
 }
 
+inline CommonAPI::InputStream& operator>>(CommonAPI::InputStream& inputStream, ProfileManagerCtrl::ESignal& enumValue) {
+    return inputStream.readEnumValue<int32_t>(enumValue);
+}
+
+inline CommonAPI::OutputStream& operator<<(CommonAPI::OutputStream& outputStream, const ProfileManagerCtrl::ESignal& enumValue) {
+    return outputStream.writeEnumValue(static_cast<int32_t>(enumValue));
+}
+
+struct ProfileManagerCtrl::ESignalComparator {
+    inline bool operator()(const ESignal& lhs, const ESignal& rhs) const {
+        return static_cast<int32_t>(lhs) < static_cast<int32_t>(rhs);
+    }
+};
+
 inline CommonAPI::InputStream& operator>>(CommonAPI::InputStream& inputStream, ProfileManagerCtrl::ETimeOutAction& enumValue) {
     return inputStream.readEnumValue<int32_t>(enumValue);
 }
@@ -75,6 +96,26 @@ struct ProfileManagerCtrl::ETimeOutActionComparator {
 } // namespace org
 
 namespace CommonAPI {
+    template<>
+    struct BasicTypeWriter<org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ESignal> {
+        inline static void writeType (CommonAPI::TypeOutputStream& typeStream) {
+            typeStream.writeInt32EnumType();
+        }
+    };
+    
+    template<>
+    struct InputStreamVectorHelper<org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ESignal> {
+        static void beginReadVector(InputStream& inputStream, const std::vector<org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ESignal>& vectorValue) {
+            inputStream.beginReadInt32EnumVector();
+        }
+    };
+    
+    template <>
+    struct OutputStreamVectorHelper<org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ESignal> {
+        static void beginWriteVector(OutputStream& outputStream, const std::vector<org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ESignal>& vectorValue) {
+            outputStream.beginWriteInt32EnumVector(vectorValue.size());
+        }
+    };
     template<>
     struct BasicTypeWriter<org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ETimeOutAction> {
         inline static void writeType (CommonAPI::TypeOutputStream& typeStream) {
@@ -101,6 +142,13 @@ namespace CommonAPI {
 
 namespace std {
     //hashes for types
+    //Hash for ESignal
+    template<>
+    struct hash<org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ESignal> {
+        inline size_t operator()(const org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ESignal& eSignal) const {
+            return static_cast<int32_t>(eSignal);
+        }
+    };
     //Hash for ETimeOutAction
     template<>
     struct hash<org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ETimeOutAction> {

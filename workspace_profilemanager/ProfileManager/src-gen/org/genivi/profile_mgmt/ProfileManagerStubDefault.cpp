@@ -23,11 +23,11 @@ ProfileManagerStubRemoteEvent* ProfileManagerStubDefault::initStubAdapter(const 
 }
 
 
-void ProfileManagerStubDefault::registerMe(const std::shared_ptr<CommonAPI::ClientId> clientId, std::string consumerAddress, std::string appID, int32_t seatID) {
+void ProfileManagerStubDefault::registerMe(const std::shared_ptr<CommonAPI::ClientId> clientId, std::string appID, int32_t seatID) {
     // Call old style methods in default 
-    registerMe(consumerAddress, appID, seatID);
+    registerMe(appID, seatID);
 }
-void ProfileManagerStubDefault::registerMe(std::string consumerAddress, std::string appID, int32_t seatID) {
+void ProfileManagerStubDefault::registerMe(std::string appID, int32_t seatID) {
     // No operation in default
 }
 
@@ -55,6 +55,48 @@ void ProfileManagerStubDefault::stopped(uint64_t sessionID) {
     // No operation in default
 }
 
+
+void ProfileManagerStubDefault::fireDetectedUserSelective(const int32_t& seatID, const int32_t& userID, const uint64_t& sessionID, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    stubAdapter_->sendDetectedUserSelective(seatID, userID, sessionID, receivers);
+}
+void ProfileManagerStubDefault::onDetectedUserSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event) {
+    // No operation in default
+}
+bool ProfileManagerStubDefault::onDetectedUserSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    // Accept in default
+    return true;
+}
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerStubDefault::getSubscribersForDetectedUserSelective() {
+    return(stubAdapter_->getSubscribersForDetectedUserSelective());
+}
+
+void ProfileManagerStubDefault::fireSynchronizedUserSelective(const int32_t& seatID, const int32_t& userID, const uint64_t& sessionID, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    stubAdapter_->sendSynchronizedUserSelective(seatID, userID, sessionID, receivers);
+}
+void ProfileManagerStubDefault::onSynchronizedUserSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event) {
+    // No operation in default
+}
+bool ProfileManagerStubDefault::onSynchronizedUserSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    // Accept in default
+    return true;
+}
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerStubDefault::getSubscribersForSynchronizedUserSelective() {
+    return(stubAdapter_->getSubscribersForSynchronizedUserSelective());
+}
+
+void ProfileManagerStubDefault::fireStopSelective(const int32_t& seatID, const uint64_t& sessionID, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    stubAdapter_->sendStopSelective(seatID, sessionID, receivers);
+}
+void ProfileManagerStubDefault::onStopSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event) {
+    // No operation in default
+}
+bool ProfileManagerStubDefault::onStopSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    // Accept in default
+    return true;
+}
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerStubDefault::getSubscribersForStopSelective() {
+    return(stubAdapter_->getSubscribersForStopSelective());
+}
 
 
 

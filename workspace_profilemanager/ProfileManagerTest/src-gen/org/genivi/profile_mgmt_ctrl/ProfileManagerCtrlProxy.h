@@ -30,6 +30,36 @@ class ProfileManagerCtrlProxy: virtual public ProfileManagerCtrl, virtual public
     ~ProfileManagerCtrlProxy();
 
 
+    /**
+     * Returns the wrapper class that provides access to the broadcast onTimeOut.
+     */
+    virtual OnTimeOutSelectiveEvent& getOnTimeOutSelectiveEvent() {
+        return delegate_->getOnTimeOutSelectiveEvent();
+    }
+    /**
+     * Returns the wrapper class that provides access to the broadcast onStateChangeStart.
+     */
+    virtual OnStateChangeStartSelectiveEvent& getOnStateChangeStartSelectiveEvent() {
+        return delegate_->getOnStateChangeStartSelectiveEvent();
+    }
+    /**
+     * Returns the wrapper class that provides access to the broadcast onStateChangeStop.
+     */
+    virtual OnStateChangeStopSelectiveEvent& getOnStateChangeStopSelectiveEvent() {
+        return delegate_->getOnStateChangeStopSelectiveEvent();
+    }
+    /**
+     * Returns the wrapper class that provides access to the broadcast onClientRegister.
+     */
+    virtual OnClientRegisterSelectiveEvent& getOnClientRegisterSelectiveEvent() {
+        return delegate_->getOnClientRegisterSelectiveEvent();
+    }
+    /**
+     * Returns the wrapper class that provides access to the broadcast onClientUnregister.
+     */
+    virtual OnClientUnregisterSelectiveEvent& getOnClientUnregisterSelectiveEvent() {
+        return delegate_->getOnClientUnregisterSelectiveEvent();
+    }
 
     /**
      * Calls registerMe with synchronous semantics.
@@ -39,7 +69,7 @@ class ProfileManagerCtrlProxy: virtual public ProfileManagerCtrl, virtual public
      * "SUCCESS" or which type of error has occurred. In case of an error, ONLY the CallStatus
      * will be set.
      */
-    virtual void registerMe(const std::string& consumerAddress, const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, CommonAPI::CallStatus& callStatus);
+    virtual void registerMe(const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, CommonAPI::CallStatus& callStatus);
     /**
      * Calls registerMe with asynchronous semantics.
      * 
@@ -50,7 +80,7 @@ class ProfileManagerCtrlProxy: virtual public ProfileManagerCtrl, virtual public
      * The std::future returned by this method will be fulfilled at arrival of the reply.
      * It will provide the same value for CallStatus as will be handed to the callback.
      */
-    virtual std::future<CommonAPI::CallStatus> registerMeAsync(const std::string& consumerAddress, const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, RegisterMeAsyncCallback callback);
+    virtual std::future<CommonAPI::CallStatus> registerMeAsync(const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, RegisterMeAsyncCallback callback);
     /**
      * Calls setUser with synchronous semantics.
      * 
@@ -174,13 +204,13 @@ ProfileManagerCtrlProxy<_AttributeExtensions...>::~ProfileManagerCtrlProxy() {
 }
 
 template <typename ... _AttributeExtensions>
-void ProfileManagerCtrlProxy<_AttributeExtensions...>::registerMe(const std::string& consumerAddress, const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, CommonAPI::CallStatus& callStatus) {
-    delegate_->registerMe(consumerAddress, registerOnTimeOut, registerOnStateChangeStart, registerOnStateChangeStop, registerOnClientRegister, registerOnClientUnregister, callStatus);
+void ProfileManagerCtrlProxy<_AttributeExtensions...>::registerMe(const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, CommonAPI::CallStatus& callStatus) {
+    delegate_->registerMe(registerOnTimeOut, registerOnStateChangeStart, registerOnStateChangeStop, registerOnClientRegister, registerOnClientUnregister, callStatus);
 }
 
 template <typename ... _AttributeExtensions>
-std::future<CommonAPI::CallStatus> ProfileManagerCtrlProxy<_AttributeExtensions...>::registerMeAsync(const std::string& consumerAddress, const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, RegisterMeAsyncCallback callback) {
-    return delegate_->registerMeAsync(consumerAddress, registerOnTimeOut, registerOnStateChangeStart, registerOnStateChangeStop, registerOnClientRegister, registerOnClientUnregister, callback);
+std::future<CommonAPI::CallStatus> ProfileManagerCtrlProxy<_AttributeExtensions...>::registerMeAsync(const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, RegisterMeAsyncCallback callback) {
+    return delegate_->registerMeAsync(registerOnTimeOut, registerOnStateChangeStart, registerOnStateChangeStop, registerOnClientRegister, registerOnClientUnregister, callback);
 }
 template <typename ... _AttributeExtensions>
 void ProfileManagerCtrlProxy<_AttributeExtensions...>::setUser(const uint32_t& userId, const uint32_t& seatId, CommonAPI::CallStatus& callStatus) {

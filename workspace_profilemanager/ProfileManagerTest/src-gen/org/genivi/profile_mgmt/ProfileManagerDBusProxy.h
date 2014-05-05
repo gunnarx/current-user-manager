@@ -18,6 +18,9 @@
 
 #include <CommonAPI/DBus/DBusFactory.h>
 #include <CommonAPI/DBus/DBusProxy.h>
+#include <CommonAPI/DBus/DBusEvent.h>
+#include <CommonAPI/types.h>
+#include <CommonAPI/DBus/DBusSelectiveEvent.h>
 
 #undef COMMONAPI_INTERNAL_COMPILATION
 
@@ -40,9 +43,12 @@ class ProfileManagerDBusProxy: virtual public ProfileManagerProxyBase, virtual p
     virtual ~ProfileManagerDBusProxy() { }
 
 
+    virtual DetectedUserSelectiveEvent& getDetectedUserSelectiveEvent();
+    virtual SynchronizedUserSelectiveEvent& getSynchronizedUserSelectiveEvent();
+    virtual StopSelectiveEvent& getStopSelectiveEvent();
 
-    virtual void registerMe(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus);
-    virtual std::future<CommonAPI::CallStatus> registerMeAsync(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, RegisterMeAsyncCallback callback);
+    virtual void registerMe(const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus);
+    virtual std::future<CommonAPI::CallStatus> registerMeAsync(const std::string& appID, const int32_t& seatID, RegisterMeAsyncCallback callback);
     virtual void unregisterMe(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus);
     virtual std::future<CommonAPI::CallStatus> unregisterMeAsync(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, UnregisterMeAsyncCallback callback);
     virtual void confirm(const uint64_t& sessionID, CommonAPI::CallStatus& callStatus);
@@ -55,6 +61,9 @@ class ProfileManagerDBusProxy: virtual public ProfileManagerProxyBase, virtual p
 
  private:
 
+    CommonAPI::DBus::DBusSelectiveEvent<DetectedUserSelectiveEvent> detectedUserSelective_;
+    CommonAPI::DBus::DBusSelectiveEvent<SynchronizedUserSelectiveEvent> synchronizedUserSelective_;
+    CommonAPI::DBus::DBusSelectiveEvent<StopSelectiveEvent> stopSelective_;
     
 };
 

@@ -22,8 +22,7 @@ interface ProfileManager {
      */
    method registerMe {
       in {
-         String  consumerAddress
-         String   appID
+         String appID
          Int32 seatID
       }
    }
@@ -64,12 +63,8 @@ interface ProfileManager {
          UInt64 sessionID
       }
    }
-}
-
-
-interface ProfileManagerConsumer {
-   version { major 1 minor 0 }
-
+   
+   
     /**
      * Is send to client after registration as soon as the user is known, or during a user switch.
      * seatID describes the seat, the user has been detected on. userID represents the newly detected
@@ -86,8 +81,8 @@ interface ProfileManagerConsumer {
      * But instead of a  synchronizedUser signal, also a stop or a next detectedUser signal might be received
      * next. If such a signal is received, only the last signal needs to be answered (stopped) or confirmed.
      */
-   method detectedUser {
-      in {
+   broadcast detectedUser selective {
+      out {
          Int32     seatID
          Int32    userID
          UInt64   sessionID
@@ -100,8 +95,8 @@ interface ProfileManagerConsumer {
      * all clients confirmed the detectedUser, the synchronizedUser signal is send to all clients. No feedback
      * to the ProfileManager is required after receiving this signal.
      */
-   method synchronizedUser {
-      in {
+   broadcast synchronizedUser selective {
+      out {
          Int32   seatID
          Int32   userID
          UInt64  sessionID
@@ -114,8 +109,8 @@ interface ProfileManagerConsumer {
      * The seatID indicates the abandoned seat, the sessionID must be memorized by the client for the reply.
      * Since users can (depending on policy) logout any time, stop signals can be received any time after registration.
      */
-   method stop  {
-      in {
+   broadcast stop selective{
+      out {
          Int32  seatID
          UInt64 sessionID
       }

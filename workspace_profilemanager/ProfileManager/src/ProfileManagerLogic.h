@@ -24,7 +24,7 @@ typedef std::string ClientSelector;
 #include "ProfileManagerCfg.hpp"
 #include "ProfileManagerLog.hpp"
 
-typedef org::genivi::profile_mgmt_ctrl::ProfileManagerCtrlConsumer::ESignal ESignal;
+typedef org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ESignal ESignal;
 
 /**
  * This class holds the main state-machines & logic for registering and notifying clients.
@@ -49,7 +49,7 @@ private:
 
 	/// Information needed for each client, that registered within current life-cycle
 	struct ProfileManagerClient {
-		ClientSelector mClientSelector;        ///< Address/ID needed to send messages to client
+		std::shared_ptr<CommonAPI::ClientId> mDbusClientId;        ///< Address/ID needed to send messages to client
 		unsigned int   mClientId;              ///< internally used ID of client
 		std::string    mClientName;            ///< external and configuration identifcation of client
 		EClientStatus  mClientCurrentStatus;   ///< currently expected state of client
@@ -109,13 +109,13 @@ public:
 	void setUser(int seatId, int userId);
 
 	//functions, that are triggered by clients, via for example  ProfileManage CommanAPI Stub implementation
-	void logicClientReceive_Register(ClientSelector clientId, std::string appID, int seatID);
+	void logicClientReceive_Register(std::shared_ptr<CommonAPI::ClientId> clientId, std::string appID, int seatID);
 	void logicClientReceive_Unregister(ClientSelector clientId, std::string appID, int seatID);
 	void logicClientReceive_Confirm(uint64_t externalSession);
 	void logicClientReceive_Stopped(uint64_t externalSession);
 
 	//functions exposed via the Ctrl interface
-	void logicControllerReceive_registerMe(std::string consumerAddress, ProfileManagerCfg* cfg = 0);
+	void logicControllerReceive_registerMe(std::shared_ptr<CommonAPI::ClientId> clientId, ProfileManagerCfg* cfg = 0);
 	void logicControllerReceive_setUser(u_int32_t userId, u_int32_t seatId);
 	void logicControllerReceive_unsetUser(u_int32_t seatId);
 	//TODO: to implement

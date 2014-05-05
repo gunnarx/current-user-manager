@@ -52,11 +52,11 @@ public:
 
 class event_logicClientReceive_Register : public event{
 private:
-	ClientSelector clientId;
+	std::shared_ptr<CommonAPI::ClientId> clientId;
 	std::string appID;
 	int seatID;
 public:
-	event_logicClientReceive_Register(ClientSelector clientId, std::string appID, int seatID);
+	event_logicClientReceive_Register(std::shared_ptr<CommonAPI::ClientId> clientId, std::string appID, int seatID);
 	~event_logicClientReceive_Register();
 
 	void execute(ProfileManagerLogic * ptrLogic);
@@ -97,9 +97,9 @@ public:
 
 class event_logicControllerReceive_registerMe :public event{
 private:
-	std::string consumerAddress;
+	std::shared_ptr<CommonAPI::ClientId> clientId;
 public:
-	event_logicControllerReceive_registerMe(std::string consumerAddress);
+	event_logicControllerReceive_registerMe(std::shared_ptr<CommonAPI::ClientId> clientId);
 	~event_logicControllerReceive_registerMe();
 
 	void execute(ProfileManagerLogic * ptrLogic);

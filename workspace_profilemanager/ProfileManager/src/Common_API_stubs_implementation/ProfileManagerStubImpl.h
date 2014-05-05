@@ -33,17 +33,10 @@ public:
 	virtual ~ProfileManagerStubImpl();
 
 
-	void registerMe(const std::shared_ptr<CommonAPI::ClientId> clientId, std::string consumerAddress, std::string appID, int32_t seatID);
-	void registerMe(std::string consumerAddress, std::string appID, int32_t seatID);
-
+	void registerMe(const std::shared_ptr<CommonAPI::ClientId> clientId, std::string appID, int32_t seatID);
 	void unregisterMe(const std::shared_ptr<CommonAPI::ClientId> clientId, std::string consumerAddress, std::string appID, int32_t seatID);
-	void unregisterMe(std::string consumerAddress, std::string appID, int32_t seatID);
-
 	void confirm(const std::shared_ptr<CommonAPI::ClientId> clientId, uint64_t sessionID);
-	void confirm(uint64_t sessionID);
-
 	void stopped(const std::shared_ptr<CommonAPI::ClientId> clientId, uint64_t sessionID);
-	void stopped(uint64_t sessionID);
 
 };
 

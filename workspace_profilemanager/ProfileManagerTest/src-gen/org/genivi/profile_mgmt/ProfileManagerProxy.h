@@ -30,6 +30,24 @@ class ProfileManagerProxy: virtual public ProfileManager, virtual public Profile
     ~ProfileManagerProxy();
 
 
+    /**
+     * Returns the wrapper class that provides access to the broadcast detectedUser.
+     */
+    virtual DetectedUserSelectiveEvent& getDetectedUserSelectiveEvent() {
+        return delegate_->getDetectedUserSelectiveEvent();
+    }
+    /**
+     * Returns the wrapper class that provides access to the broadcast synchronizedUser.
+     */
+    virtual SynchronizedUserSelectiveEvent& getSynchronizedUserSelectiveEvent() {
+        return delegate_->getSynchronizedUserSelectiveEvent();
+    }
+    /**
+     * Returns the wrapper class that provides access to the broadcast stop.
+     */
+    virtual StopSelectiveEvent& getStopSelectiveEvent() {
+        return delegate_->getStopSelectiveEvent();
+    }
 
     /**
      * Calls registerMe with synchronous semantics.
@@ -39,7 +57,7 @@ class ProfileManagerProxy: virtual public ProfileManager, virtual public Profile
      * "SUCCESS" or which type of error has occurred. In case of an error, ONLY the CallStatus
      * will be set.
      */
-    virtual void registerMe(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus);
+    virtual void registerMe(const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus);
     /**
      * Calls registerMe with asynchronous semantics.
      * 
@@ -50,7 +68,7 @@ class ProfileManagerProxy: virtual public ProfileManager, virtual public Profile
      * The std::future returned by this method will be fulfilled at arrival of the reply.
      * It will provide the same value for CallStatus as will be handed to the callback.
      */
-    virtual std::future<CommonAPI::CallStatus> registerMeAsync(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, RegisterMeAsyncCallback callback);
+    virtual std::future<CommonAPI::CallStatus> registerMeAsync(const std::string& appID, const int32_t& seatID, RegisterMeAsyncCallback callback);
     /**
      * Calls unregisterMe with synchronous semantics.
      * 
@@ -174,13 +192,13 @@ ProfileManagerProxy<_AttributeExtensions...>::~ProfileManagerProxy() {
 }
 
 template <typename ... _AttributeExtensions>
-void ProfileManagerProxy<_AttributeExtensions...>::registerMe(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus) {
-    delegate_->registerMe(consumerAddress, appID, seatID, callStatus);
+void ProfileManagerProxy<_AttributeExtensions...>::registerMe(const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus) {
+    delegate_->registerMe(appID, seatID, callStatus);
 }
 
 template <typename ... _AttributeExtensions>
-std::future<CommonAPI::CallStatus> ProfileManagerProxy<_AttributeExtensions...>::registerMeAsync(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, RegisterMeAsyncCallback callback) {
-    return delegate_->registerMeAsync(consumerAddress, appID, seatID, callback);
+std::future<CommonAPI::CallStatus> ProfileManagerProxy<_AttributeExtensions...>::registerMeAsync(const std::string& appID, const int32_t& seatID, RegisterMeAsyncCallback callback) {
+    return delegate_->registerMeAsync(appID, seatID, callback);
 }
 template <typename ... _AttributeExtensions>
 void ProfileManagerProxy<_AttributeExtensions...>::unregisterMe(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus) {

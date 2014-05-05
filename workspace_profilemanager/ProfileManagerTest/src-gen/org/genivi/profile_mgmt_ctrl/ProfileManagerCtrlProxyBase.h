@@ -23,6 +23,8 @@
 #include <cstdint>
 #include <vector>
 
+#include <CommonAPI/Event.h>
+#include <CommonAPI/SelectiveEvent.h>
 #include <CommonAPI/Proxy.h>
 #include <functional>
 #include <future>
@@ -35,6 +37,11 @@ namespace profile_mgmt_ctrl {
 
 class ProfileManagerCtrlProxyBase: virtual public CommonAPI::Proxy {
  public:
+    typedef CommonAPI::SelectiveEvent<std::string, uint32_t, uint32_t, ProfileManagerCtrl::ESignal, uint64_t, int32_t, uint64_t> OnTimeOutSelectiveEvent;
+    typedef CommonAPI::SelectiveEvent<uint32_t, uint32_t, int32_t, ProfileManagerCtrl::ESignal, uint64_t> OnStateChangeStartSelectiveEvent;
+    typedef CommonAPI::SelectiveEvent<uint32_t, uint32_t, int32_t, ProfileManagerCtrl::ESignal, uint64_t> OnStateChangeStopSelectiveEvent;
+    typedef CommonAPI::SelectiveEvent<std::string, uint32_t> OnClientRegisterSelectiveEvent;
+    typedef CommonAPI::SelectiveEvent<std::string, uint32_t> OnClientUnregisterSelectiveEvent;
 
     typedef std::function<void(const CommonAPI::CallStatus&)> RegisterMeAsyncCallback;
     typedef std::function<void(const CommonAPI::CallStatus&)> SetUserAsyncCallback;
@@ -42,9 +49,14 @@ class ProfileManagerCtrlProxyBase: virtual public CommonAPI::Proxy {
     typedef std::function<void(const CommonAPI::CallStatus&)> TimeOutActionAsyncCallback;
 
 
+    virtual OnTimeOutSelectiveEvent& getOnTimeOutSelectiveEvent() = 0;
+    virtual OnStateChangeStartSelectiveEvent& getOnStateChangeStartSelectiveEvent() = 0;
+    virtual OnStateChangeStopSelectiveEvent& getOnStateChangeStopSelectiveEvent() = 0;
+    virtual OnClientRegisterSelectiveEvent& getOnClientRegisterSelectiveEvent() = 0;
+    virtual OnClientUnregisterSelectiveEvent& getOnClientUnregisterSelectiveEvent() = 0;
 
-    virtual void registerMe(const std::string& consumerAddress, const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, CommonAPI::CallStatus& callStatus) = 0;
-    virtual std::future<CommonAPI::CallStatus> registerMeAsync(const std::string& consumerAddress, const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, RegisterMeAsyncCallback callback) = 0;
+    virtual void registerMe(const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, CommonAPI::CallStatus& callStatus) = 0;
+    virtual std::future<CommonAPI::CallStatus> registerMeAsync(const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, RegisterMeAsyncCallback callback) = 0;
     virtual void setUser(const uint32_t& userId, const uint32_t& seatId, CommonAPI::CallStatus& callStatus) = 0;
     virtual std::future<CommonAPI::CallStatus> setUserAsync(const uint32_t& userId, const uint32_t& seatId, SetUserAsyncCallback callback) = 0;
     virtual void unsetUser(const uint32_t& seatId, CommonAPI::CallStatus& callStatus) = 0;

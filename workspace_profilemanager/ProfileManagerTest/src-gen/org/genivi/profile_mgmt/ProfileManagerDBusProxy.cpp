@@ -36,28 +36,40 @@ ProfileManagerDBusProxy::ProfileManagerDBusProxy(
                     const std::string& objectPath,
                     const std::shared_ptr<CommonAPI::DBus::DBusProxyConnection>& dbusProxyconnection):
         CommonAPI::DBus::DBusProxy(factory, commonApiAddress, interfaceName, busName, objectPath, dbusProxyconnection)
+,        detectedUserSelective_(*this, "detectedUser", "iit"),
+        synchronizedUserSelective_(*this, "synchronizedUser", "iit"),
+        stopSelective_(*this, "stop", "it")
     {
     }
 
 
+ProfileManagerDBusProxy::DetectedUserSelectiveEvent& ProfileManagerDBusProxy::getDetectedUserSelectiveEvent() {
+    return detectedUserSelective_;
+}
+ProfileManagerDBusProxy::SynchronizedUserSelectiveEvent& ProfileManagerDBusProxy::getSynchronizedUserSelectiveEvent() {
+    return synchronizedUserSelective_;
+}
+ProfileManagerDBusProxy::StopSelectiveEvent& ProfileManagerDBusProxy::getStopSelectiveEvent() {
+    return stopSelective_;
+}
 
-void ProfileManagerDBusProxy::registerMe(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus) {
-    CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<std::string, std::string, int32_t>,
+void ProfileManagerDBusProxy::registerMe(const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus) {
+    CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<std::string, int32_t>,
                                      CommonAPI::DBus::DBusSerializableArguments<> >::callMethodWithReply(
         *this,
         "registerMe",
-        "ssi",
-        consumerAddress, appID, seatID, 
+        "si",
+        appID, seatID, 
         callStatus
         );
 }
-std::future<CommonAPI::CallStatus> ProfileManagerDBusProxy::registerMeAsync(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, RegisterMeAsyncCallback callback) {
-    return CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<std::string, std::string, int32_t>,
+std::future<CommonAPI::CallStatus> ProfileManagerDBusProxy::registerMeAsync(const std::string& appID, const int32_t& seatID, RegisterMeAsyncCallback callback) {
+    return CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<std::string, int32_t>,
                                      CommonAPI::DBus::DBusSerializableArguments<> >::callMethodAsync(
         *this,
         "registerMe",
-        "ssi",
-        consumerAddress, appID, seatID, 
+        "si",
+        appID, seatID, 
         std::move(callback));
 }
 void ProfileManagerDBusProxy::unregisterMe(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus) {

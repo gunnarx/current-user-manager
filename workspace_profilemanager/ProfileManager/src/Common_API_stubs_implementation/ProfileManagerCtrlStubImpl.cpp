@@ -16,47 +16,23 @@ ProfileManagerCtrlStubImpl::~ProfileManagerCtrlStubImpl(){}
 
 
 
-void ProfileManagerCtrlStubImpl::registerMe(const std::shared_ptr<CommonAPI::ClientId> clientId, std::string consumerAddress, bool registerOnTimeOut, bool registerOnStateChangeStart, bool registerOnStateChangeStop, bool registerOnClientRegister, bool registerOnClientUnregister) {
-	registerMe(consumerAddress, registerOnTimeOut, registerOnStateChangeStart, registerOnStateChangeStop, registerOnClientRegister, registerOnClientUnregister);
-}
-void ProfileManagerCtrlStubImpl::registerMe(std::string consumerAddress, bool registerOnTimeOut, bool registerOnStateChangeStart, bool registerOnStateChangeStop, bool registerOnClientRegister, bool registerOnClientUnregister) {
+void ProfileManagerCtrlStubImpl::registerMe(const std::shared_ptr<CommonAPI::ClientId> clientId, bool registerOnTimeOut, bool registerOnStateChangeStart, bool registerOnStateChangeStop, bool registerOnClientRegister, bool registerOnClientUnregister) {
 	std::cout<<"Controller is invoking registerMe!\n";
-	mEventHandler->eventQueue.push(new event_logicControllerReceive_registerMe(consumerAddress));
-	std::cout<<"registerMe event pushed to queue\n\n";
-}
-
-
-
-
+	mEventHandler->eventQueue.push(new event_logicControllerReceive_registerMe(clientId));
+	std::cout<<"registerMe event pushed to queue\n\n";}
 
 void ProfileManagerCtrlStubImpl::setUser(const std::shared_ptr<CommonAPI::ClientId> clientId, uint32_t userId, uint32_t seatId) {
-	setUser(userId, seatId);
-}
-void ProfileManagerCtrlStubImpl::setUser(uint32_t userId, uint32_t seatId) {
 	std::cout<<"Controller is invoking setUser with params : userId: " <<userId << " seatId: " << seatId <<"\n";
 	mEventHandler->eventQueue.push(new event_logicControllerReceive_setUser(userId,seatId));
 	std::cout<<"setUser event pushed to queue\n\n";
 }
 
-
-
-
-
 void ProfileManagerCtrlStubImpl::unsetUser(const std::shared_ptr<CommonAPI::ClientId> clientId, uint32_t seatId) {
-	unsetUser(seatId);
-}
-void ProfileManagerCtrlStubImpl::unsetUser(uint32_t seatId) {
 	std::cout<<"Controller is invoking unsetUser with params : seatId: " << seatId <<"\n";
 	mEventHandler->eventQueue.push(new event_logicControllerReceive_unsetUser(seatId));
 	std::cout<<"unsetUser event pushed to queue\n\n";
 }
 
-
-
-
 void ProfileManagerCtrlStubImpl::timeOutAction(const std::shared_ptr<CommonAPI::ClientId> clientId, uint64_t timeOutSessionId, org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ETimeOutAction timeOutActionItem) {
-	timeOutAction(timeOutSessionId, timeOutActionItem);
-}
-void ProfileManagerCtrlStubImpl::timeOutAction(uint64_t timeOutSessionId, org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ETimeOutAction timeOutActionItem) {
 	//TODO: implementation of timeOutAction
 }

@@ -13,31 +13,18 @@
 #include <time.h>
 #include <future>
 #include <string>
+#include <iostream>
 
 #include <CommonAPI/CommonAPI.h>
-#include "org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlConsumer.h"
-#include "org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlConsumerProxy.h"
 
 #include "../_global_.h"
+#include "org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlStubDefault.h"
 
-typedef org::genivi::profile_mgmt_ctrl::ProfileManagerCtrlConsumer::ESignal ESignal;
+typedef org::genivi::profile_mgmt_ctrl::ProfileManagerCtrl::ESignal ESignal;
 
 typedef std::string ClientSelector;
 
-//typedefs are copy paste from generated code
-typedef std::function<void(const CommonAPI::CallStatus&)> OnTimeOutAsyncCallback;
-typedef std::function<void(const CommonAPI::CallStatus&)> OnStateChangeStartAsyncCallback;
-typedef std::function<void(const CommonAPI::CallStatus&)> OnStateChangeStopAsyncCallback;
-typedef std::function<void(const CommonAPI::CallStatus&)> OnClientRegisterAsyncCallback;
-typedef std::function<void(const CommonAPI::CallStatus&)> OnClientUnregisterAsyncCallback;
-
-//Callback handlers for the Async communication
-//THESE FUNCTIONS ARE INVOKED DIRECTLY AFTER END OF CALL
-void callbackHandler_onTimeOut			(const CommonAPI::CallStatus& s);
-void callbackHandler_onStateChangeStart	(const CommonAPI::CallStatus& s);
-void callbackHandler_onStateChangeStop	(const CommonAPI::CallStatus& s);
-void callbackHandler_onClientRegister	(const CommonAPI::CallStatus& s);
-void callbackHandler_onClientUnregister	(const CommonAPI::CallStatus& s);
+class ProfileManagerCtrlStubImpl;
 
 /**
  * THIS INTERFACE IS USED BY PROFILEMANAGER TO COMMUNICATE WITH CONTROLLER
@@ -49,15 +36,13 @@ void callbackHandler_onClientUnregister	(const CommonAPI::CallStatus& s);
  */
 class ProfileManagerControllerIntf {
 private:
-	std::shared_ptr<CommonAPI::Factory> factory;
-
-	void checkStatus(std::future<CommonAPI::CallStatus> &status);
 
 public:
 	//Calls to the controller will be made to this address!
-	std::string ServiceAddress;
+	std::shared_ptr<CommonAPI::ClientId> controllerId;
+	ProfileManagerCtrlStubImpl * stubPtr;
 
-	ProfileManagerControllerIntf(std::shared_ptr<CommonAPI::Factory> &factory);
+	ProfileManagerControllerIntf();
 	virtual ~ProfileManagerControllerIntf();
 
 	void sendOnTimeOut			(const std::string& appName, const uint32_t& userId, const uint32_t& seatId, const ESignal& s, const uint64_t& sessionId, const int32_t& timeElapsedMs, const uint64_t& timeOutSessionId);

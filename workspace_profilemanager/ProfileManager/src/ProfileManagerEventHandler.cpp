@@ -23,7 +23,7 @@ void event_handler::run(){
 	while(!eventQueue.empty()){
 		eventQueue.front()->execute(ptrLogic);
 		eventQueue.pop();
-		std::cout<<"event successfully executed!\t Number of events left in queue: "<<eventQueue.size()<<"\n\n";
+		//std::cout<<"event successfully executed!\t Number of events left in queue: "<<eventQueue.size()<<"\n\n";
 	}
 }
 
@@ -36,7 +36,7 @@ void event_handler::run(){
 
 
 //event_logicClientReceive_Register
-event_logicClientReceive_Register::event_logicClientReceive_Register(ClientSelector clientId, std::string appID, int seatID){
+event_logicClientReceive_Register::event_logicClientReceive_Register(std::shared_ptr<CommonAPI::ClientId> clientId, std::string appID, int seatID){
 	this->clientId = clientId;
 	this->appID = appID;
 	this->seatID = seatID;
@@ -44,7 +44,7 @@ event_logicClientReceive_Register::event_logicClientReceive_Register(ClientSelec
 event_logicClientReceive_Register::~event_logicClientReceive_Register(){};
 
 void event_logicClientReceive_Register::execute(ProfileManagerLogic * ptrLogic){
-	ptrLogic->logicClientReceive_Register( clientId,appID, seatID);
+	ptrLogic->logicClientReceive_Register(clientId, appID, seatID);
 }
 
 
@@ -84,13 +84,13 @@ void event_logicClientReceive_Stopped::execute(ProfileManagerLogic * ptrLogic){
 
 
 //event_logicControllerReceive_registerMe
-event_logicControllerReceive_registerMe::event_logicControllerReceive_registerMe(std::string consumerAddress){
-	this->consumerAddress = consumerAddress;
+event_logicControllerReceive_registerMe::event_logicControllerReceive_registerMe(std::shared_ptr<CommonAPI::ClientId> clientId){
+	this->clientId = clientId;
 }
 event_logicControllerReceive_registerMe::~event_logicControllerReceive_registerMe(){};
 
 void event_logicControllerReceive_registerMe::execute(ProfileManagerLogic * ptrLogic){
-	ptrLogic->logicControllerReceive_registerMe(consumerAddress);
+	ptrLogic->logicControllerReceive_registerMe(clientId);
 }
 
 

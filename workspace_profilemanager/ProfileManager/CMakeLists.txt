@@ -38,18 +38,12 @@ ${PROJECT_SOURCE_DIR}/src/Common_API_proxy_intf/ProfileManagerControllerIntf.cpp
 ${PROJECT_SOURCE_DIR}/src/Common_API_proxy_intf/ProfileManagerClientIntf.cpp
 ${PROJECT_SOURCE_DIR}/src/Common_API_stubs_implementation/ProfileManagerStubImpl.cpp
 ${PROJECT_SOURCE_DIR}/src/Common_API_stubs_implementation/ProfileManagerCtrlStubImpl.cpp
+${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt/ProfileManagerDBusProxy.cpp
+${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt/ProfileManagerStubDefault.cpp
+${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt/ProfileManagerDBusStubAdapter.cpp
 ${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlDBusProxy.cpp
-${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlConsumerDBusStubAdapter.cpp
 ${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlStubDefault.cpp
 ${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlDBusStubAdapter.cpp
-${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlConsumerDBusProxy.cpp
-${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt_ctrl/ProfileManagerCtrlConsumerStubDefault.cpp
-${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt/ProfileManagerStubDefault.cpp
-${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt/ProfileManagerDBusProxy.cpp
-${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt/ProfileManagerDBusStubAdapter.cpp
-${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt/ProfileManagerConsumerDBusProxy.cpp
-${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt/ProfileManagerConsumerStubDefault.cpp
-${PROJECT_SOURCE_DIR}/src-gen/org/genivi/profile_mgmt/ProfileManagerConsumerDBusStubAdapter.cpp
 )
 
 TARGET_LINK_LIBRARIES(

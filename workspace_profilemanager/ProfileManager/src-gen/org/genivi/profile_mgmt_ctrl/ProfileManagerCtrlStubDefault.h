@@ -34,8 +34,8 @@ class ProfileManagerCtrlStubDefault : public ProfileManagerCtrlStub {
     ProfileManagerCtrlStubRemoteEvent* initStubAdapter(const std::shared_ptr<ProfileManagerCtrlStubAdapter>& stubAdapter);
 
 
-    virtual void registerMe(const std::shared_ptr<CommonAPI::ClientId> clientId, std::string consumerAddress, bool registerOnTimeOut, bool registerOnStateChangeStart, bool registerOnStateChangeStop, bool registerOnClientRegister, bool registerOnClientUnregister);
-    virtual void registerMe(std::string consumerAddress, bool registerOnTimeOut, bool registerOnStateChangeStart, bool registerOnStateChangeStop, bool registerOnClientRegister, bool registerOnClientUnregister);
+    virtual void registerMe(const std::shared_ptr<CommonAPI::ClientId> clientId, bool registerOnTimeOut, bool registerOnStateChangeStart, bool registerOnStateChangeStop, bool registerOnClientRegister, bool registerOnClientUnregister);
+    virtual void registerMe(bool registerOnTimeOut, bool registerOnStateChangeStart, bool registerOnStateChangeStop, bool registerOnClientRegister, bool registerOnClientUnregister);
 
     virtual void setUser(const std::shared_ptr<CommonAPI::ClientId> clientId, uint32_t userId, uint32_t seatId);
     virtual void setUser(uint32_t userId, uint32_t seatId);
@@ -47,6 +47,36 @@ class ProfileManagerCtrlStubDefault : public ProfileManagerCtrlStub {
     virtual void timeOutAction(uint64_t timeOutSessionId, ProfileManagerCtrl::ETimeOutAction timeOutActionItem);
 
 
+    virtual void fireOnTimeOutSelective(const std::string& appName, const uint32_t& userId, const uint32_t& seatId, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const int32_t& timeElapsedMs, const uint64_t& timeOutSessionId, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    virtual std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForOnTimeOutSelective();
+    /// Hook method for reacting on new subscriptions or removed subscriptions respectively for selective broadcasts.
+    virtual void onOnTimeOutSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event);
+    /// Hook method for reacting accepting or denying new subscriptions 
+    virtual bool onOnTimeOutSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    virtual void fireOnStateChangeStartSelective(const uint32_t& userId, const uint32_t& seatId, const int32_t& depLevel, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    virtual std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForOnStateChangeStartSelective();
+    /// Hook method for reacting on new subscriptions or removed subscriptions respectively for selective broadcasts.
+    virtual void onOnStateChangeStartSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event);
+    /// Hook method for reacting accepting or denying new subscriptions 
+    virtual bool onOnStateChangeStartSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    virtual void fireOnStateChangeStopSelective(const uint32_t& userId, const uint32_t& seatId, const int32_t& depLevel, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    virtual std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForOnStateChangeStopSelective();
+    /// Hook method for reacting on new subscriptions or removed subscriptions respectively for selective broadcasts.
+    virtual void onOnStateChangeStopSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event);
+    /// Hook method for reacting accepting or denying new subscriptions 
+    virtual bool onOnStateChangeStopSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    virtual void fireOnClientRegisterSelective(const std::string& appName, const uint32_t& seatId, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    virtual std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForOnClientRegisterSelective();
+    /// Hook method for reacting on new subscriptions or removed subscriptions respectively for selective broadcasts.
+    virtual void onOnClientRegisterSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event);
+    /// Hook method for reacting accepting or denying new subscriptions 
+    virtual bool onOnClientRegisterSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    virtual void fireOnClientUnregisterSelective(const std::string& appName, const uint32_t& seatId, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    virtual std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForOnClientUnregisterSelective();
+    /// Hook method for reacting on new subscriptions or removed subscriptions respectively for selective broadcasts.
+    virtual void onOnClientUnregisterSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event);
+    /// Hook method for reacting accepting or denying new subscriptions 
+    virtual bool onOnClientUnregisterSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId);
     
 
  protected:

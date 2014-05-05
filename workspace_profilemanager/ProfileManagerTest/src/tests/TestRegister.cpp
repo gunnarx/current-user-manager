@@ -24,12 +24,19 @@ void TestRegister::prepare(std::vector<Client*> & clientVect, Controller * ctrl)
 
 
 void TestRegister::execute(){
-	if(mClientId < c.size()){
+	while (mClientId >= c.size()){
+		c.push_back(new Client("generic",c.size()));
+	}
+
+
+	{
+		//std::cout<<"mClientId: " << mClientId <<"\n";
+		//std::cout<<"c.size(): " << c.size() <<"\n";
 
 		time_t begin;
 		time(&begin);
 
-		c[mClientId]->sendRegisterMe(c[mClientId]->mAddressClientStub,c[mClientId]->mUID,mSeatId);
+		c[mClientId]->sendRegisterMe(c[mClientId]->mUID,mSeatId);
 
 		try{
 			while(c[mClientId]->mState != Client::EClientStatus::eDetected){
@@ -56,5 +63,5 @@ void TestRegister::execute(){
 			throw 'e';
 		}
 	}
-	else std::cout<<"#client does not exist\n";
+	//else std::cout<<"#client does not exist\n";
 }

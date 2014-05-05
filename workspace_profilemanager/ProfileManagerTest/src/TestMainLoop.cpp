@@ -105,6 +105,7 @@ void createConfig(ProfileManagerCfg & cfg, std::vector<Client*> & clientVect){
 	createClient(cfg, clientVect, "Client_7", -1, 100, 	cfg.mDefaultTimeOutMs);
 	createClient(cfg, clientVect, "Client_8", -1, 1000, cfg.mDefaultTimeOutMs);
 	createClient(cfg, clientVect, "Client_9", -1, 1000, cfg.mDefaultTimeOutMs);
+	/* to create another client just add another one here*/
 
 	//write to file
 	fstream cfgFile("profile_manager_cfg", ios::out | ios::binary);
@@ -135,8 +136,9 @@ void createConfig(ProfileManagerCfg & cfg, std::vector<Client*> & clientVect){
  */
 int main(void) {
 	/* create config: */
-	ProfileManagerCfg cfg;
 	std::vector<Client*> clientVect;
+
+	ProfileManagerCfg cfg;
 	createConfig( cfg, clientVect);
 
 	std::cout << "p:PrflMgrCtrll[ap]" << std::endl;

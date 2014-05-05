@@ -8,6 +8,7 @@
  ****************************************************************/
 
 #include "ProfileManagerClientIntf.h"
+#include "../Common_API_stubs_implementation/ProfileManagerStubImpl.h"
 
 void callbackHandler_detectedUser(const CommonAPI::CallStatus& s){
 	//std::cout<<"end call callbackHandler_detectedUser\n";
@@ -19,8 +20,7 @@ void callbackHandler_stop(const CommonAPI::CallStatus& s){
 	//std::cout<<"end call callbackHandler_stop\n";
 }
 
-ProfileManagerClientIntf::ProfileManagerClientIntf
-(std::shared_ptr<CommonAPI::Factory> &factory) : factory(factory){
+ProfileManagerClientIntf::ProfileManagerClientIntf(){
 }
 
 
@@ -30,139 +30,28 @@ ProfileManagerClientIntf::~ProfileManagerClientIntf() {
 
 
 
-void ProfileManagerClientIntf::sendDetectedUser(ClientSelector clientId, u_int32_t seatId, u_int32_t userId, uint64_t sessionId){
-	std::cout<<"Invoking sendDetectedUser  : calling: "<<clientId<<"\n";
+void ProfileManagerClientIntf::sendDetectedUser(std::shared_ptr<CommonAPI::ClientId> clientDbusId, u_int32_t seatId, u_int32_t userId, uint64_t sessionId){
+	std::cout<<"Invoking sendDetectedUser  : calling: "<<sessionId<<"\n";
 
-	//auto == std::shared_ptr<org::genivi::profile_mgmt::ProfileManagerConsumerProxy<> >
-	auto p = factory->buildProxy<org::genivi::profile_mgmt::ProfileManagerConsumerProxy>(clientId);
-
-	if (p != 0) {
-		std::future<CommonAPI::CallStatus> status;
-		DetectedUserAsyncCallback Callback = callbackHandler_detectedUser;
-
-		try {
-			time_t begin;
-			time(&begin);
-			while(!p->isAvailable()){
-				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
-					throw 't';
-				}
-			}
-
-			//make an async call to the client using a proxy
-			status = p->detectedUserAsync(seatId, userId, sessionId, Callback);
-			checkStatus(status);
-			std::cout<<"\n";
-
-		}
-		catch (char e) {
-			if(e=='t') std::cout << "timeout during proxy send!\n";
-			else std::cout<< "Unexpected error during proxy send!\n";
-		}
-	}
-	else std::cout<<"Proxy Error\n";
+	std::shared_ptr<CommonAPI::ClientIdList> receivers = std::make_shared<CommonAPI::ClientIdList>();
+	receivers->insert(clientDbusId);
+	stubPtr->fireDetectedUserSelective(seatId, userId, sessionId, receivers);
 }
 
 
-void ProfileManagerClientIntf::sendSynchronizedUser(ClientSelector clientId, u_int32_t seatId, u_int32_t userId, uint64_t sessionId){
-	std::cout<<"Invoking sendSynchronizedUser : calling: "<<clientId<<"\n";
+void ProfileManagerClientIntf::sendSynchronizedUser(std::shared_ptr<CommonAPI::ClientId> clientDbusId, u_int32_t seatId, u_int32_t userId, uint64_t sessionId){
+	std::cout<<"Invoking sendSynchronizedUser : calling: "<<sessionId<<"\n";
 
-	//auto == std::shared_ptr<org::genivi::profile_mgmt::ProfileManagerConsumerProxy<> >
-	auto p = factory->buildProxy<org::genivi::profile_mgmt::ProfileManagerConsumerProxy>(clientId);
-	if (p != 0) {
-		std::future<CommonAPI::CallStatus> status;
-		SynchronizedUserAsyncCallback Callback = callbackHandler_synchronizedUser;
-
-		try {
-			time_t begin;
-			time(&begin);
-			while(!p->isAvailable()){
-				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
-					throw 't';
-				}
-			}
-
-			//make an async call to the client using a proxy
-			status = p->synchronizedUserAsync(seatId, userId, sessionId, Callback);
-
-			checkStatus(status);
-			std::cout<<"\n";
-		}
-		catch (char e) {
-			if(e=='t') std::cout << "timeout during proxy send!\n";
-			else std::cout<< "Unexpected error during proxy send!\n";
-		}
-	}
-	else std::cout<<"Proxy Error\n";
+	std::shared_ptr<CommonAPI::ClientIdList> receivers = std::make_shared<CommonAPI::ClientIdList>();
+	receivers->insert(clientDbusId);
+	stubPtr->fireSynchronizedUserSelective(seatId, userId, sessionId, receivers);
 }
 
 
-void ProfileManagerClientIntf::sendStop(ClientSelector clientId, u_int32_t seatId, uint64_t sessionId){
-	std::cout<<"Invoking sendStop : calling: "<<clientId<<"\n";
+void ProfileManagerClientIntf::sendStop(std::shared_ptr<CommonAPI::ClientId> clientDbusId, u_int32_t seatId, uint64_t sessionId){
+	std::cout<<"Invoking sendStop : calling: "<<sessionId<<"\n";
 
-
-	auto p = factory->buildProxy<org::genivi::profile_mgmt::ProfileManagerConsumerProxy>(clientId);
-
-	if (p != 0) {
-		std::future<CommonAPI::CallStatus> status;
-		StopAsyncCallback Callback = callbackHandler_stop;
-
-		try {
-			time_t begin;
-			time(&begin);
-			while(!p->isAvailable()){
-				if(difftime(time(0), begin) > _TIMEOUT_SECONDS_WAITFORPROXY_){
-					throw 't';
-				}
-			}
-
-			//make an async call to the client using a proxy
-			status = p->stopAsync(seatId, sessionId, Callback);
-			checkStatus(status);
-			std::cout<<"\n";
-		}
-		catch (char e) {
-			if(e=='t') std::cout << "timeout during proxy send!\n";
-			else std::cout<< "Unexpected error during proxy send!\n";
-		}
-	}
-	else std::cout<<"Proxy Error\n";
-}
-
-/*
- * Displays call status
- *
- * If your version of gcc does not support std::future or std::promise
- * this function and it's every invocation can be safely commented out
- */
-void ProfileManagerClientIntf::checkStatus(std::future<CommonAPI::CallStatus> &status){
-	std::future_status s;
-	s = status.wait_for(std::chrono::seconds(_TIMEOUT_SECONDS_WAITFORSTATUS_));
-	if(s == std::future_status::ready){
-		switch (status.get())
-		{
-		case CommonAPI::CallStatus::SUCCESS:
-			std::cout << "CallStatus::SUCCESS\n";
-			std::cout.flush();
-			break;
-		case CommonAPI::CallStatus::OUT_OF_MEMORY:
-			std::cout << "CallStatus::OUT_OF_MEMORY\n";
-			break;
-		case CommonAPI::CallStatus::NOT_AVAILABLE:
-			std::cout << "CallStatus::NOT_AVAILABLE\n";
-			break;
-		case CommonAPI::CallStatus::CONNECTION_FAILED:
-			std::cout << "CallStatus::CONNECTION_FAILED\n";
-			break;
-		case CommonAPI::CallStatus::REMOTE_ERROR:
-			std::cout << "CallStatus::REMOTE_ERROR\n";
-			break;
-		default:
-			std::cout << "Unknown status\n";
-			break;
-		}
-	}
-	else{
-		std::cout<<"CallStatus: STATUS HAS NOT APPEARED!\n";
-	}
+	std::shared_ptr<CommonAPI::ClientIdList> receivers = std::make_shared<CommonAPI::ClientIdList>();
+	receivers->insert(clientDbusId);
+	stubPtr->fireStopSelective(seatId, sessionId, receivers);
 }

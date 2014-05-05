@@ -18,9 +18,10 @@ ProfileManagerMain::ProfileManagerMain()
 	auto log = std::make_shared<Logger>();//logger is not yet implemented
 
 	std::shared_ptr<CommonAPI::Factory> factory = CommonAPI::Runtime::load()->createFactory();
+	std::shared_ptr<CommonAPI::Factory> factoryCtrl = CommonAPI::Runtime::load()->createFactory();
 
-	ProfileManagerClientIntf* intfClient = new ProfileManagerClientIntf(factory);
-	ProfileManagerControllerIntf* intfController = new ProfileManagerControllerIntf(factory);
+	ProfileManagerClientIntf* intfClient = new ProfileManagerClientIntf;
+	ProfileManagerControllerIntf* intfController = new ProfileManagerControllerIntf;
 
 	mLogic = new ProfileManagerLogic(*log, *intfClient, *intfController);
 
@@ -29,11 +30,14 @@ ProfileManagerMain::ProfileManagerMain()
 	auto profileManagerStub 	= std::make_shared<ProfileManagerStubImpl>( *mLogic,ProfileManagerEvents);
 	auto profileManagerCtrlStub = std::make_shared<ProfileManagerCtrlStubImpl>(*mLogic,ProfileManagerEvents);
 
+	intfClient->stubPtr = profileManagerStub.get();
+	intfController->stubPtr = profileManagerCtrlStub.get();
+
 	success = factory->getRuntime()->getServicePublisher()->registerService(profileManagerStub, serviceAddress_profileManager_clientStub, factory);
 	if(success) std::cout << "!!!stub successfully registered!!!" << std::endl;
 	else		std::cout << "!!!stub registration failed!!!" << std::endl;
 
-	success = factory->getRuntime()->getServicePublisher()->registerService(profileManagerCtrlStub, serviceAddress_profileManager_controllerStub, factory);
+	success = factoryCtrl->getRuntime()->getServicePublisher()->registerService(profileManagerCtrlStub, serviceAddress_profileManager_controllerStub, factoryCtrl);
 	if(success) std::cout << "!!!stub successfully registered!!!" << std::endl;
 	else		std::cout << "!!!stub registration failed!!!" << std::endl;
 

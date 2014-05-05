@@ -23,7 +23,6 @@ interface ProfileManagerCtrl {
     */
    method registerMe { 
       in {
-         String  consumerAddress
          Boolean registerOnTimeOut
          Boolean registerOnStateChangeStart
          Boolean registerOnStateChangeStop
@@ -67,31 +66,20 @@ interface ProfileManagerCtrl {
       }
    }
    
-   /**
-    * Defines the possible corrective actions, once a timeout occured 
-    */
-   enumeration ETimeOutAction {
-      eDropApplication     /* unregister the client, that caused the timeout and continue */
-      eIgnore              /* ignore that the timeout occurred, act as if the event was received  */
-      eReTime              /* Reset all timers and wait again */
-      eStopWaitForNewUser  /* Stop the current user switch, do nothing until new user has been set */
-      eReturnToOldUser     /* Since switch to new user has not been successful, reactivate last user  */
-   }
+
+
    
-}
 
 /**
  * Must be implemented/offered by the Profile Manager Controller, in order to receive events,
  * that the Profile Manager needs to send to it's control instance.
  */
-interface ProfileManagerCtrlConsumer {
-   version { major 1 minor 0}
    
    /**
     * Will be received, when a registered client does not react timely to a use switch.
     */
-   method onTimeOut{
-      in {
+   broadcast onTimeOut selective {
+      out {
          String appName
          UInt32 userId
          UInt32 seatId
@@ -106,8 +94,8 @@ interface ProfileManagerCtrlConsumer {
     * Received after initiating a setUser command. It will be called for each dependency
     * level.
     */
-   method onStateChangeStart {
-      in {
+   broadcast onStateChangeStart selective {
+      out {
          UInt32 userId
          UInt32 seatId
          Int32 depLevel
@@ -120,8 +108,8 @@ interface ProfileManagerCtrlConsumer {
     * Received after receiving a onStateChangeStart call to indicate, that all clients within
     * the dependency level specified have correctly answered.
     */
-   method onStateChangeStop {
-      in {
+   broadcast onStateChangeStop selective {
+      out {
          UInt32 userId
          UInt32 seatId
          Int32 depLevel
@@ -133,8 +121,8 @@ interface ProfileManagerCtrlConsumer {
    /**
     * Received, once a client registered.
     */
-   method onClientRegister{
-      in {
+   broadcast onClientRegister selective {
+      out {
          String appName
          UInt32 seatId
       }
@@ -143,8 +131,8 @@ interface ProfileManagerCtrlConsumer {
    /**
     * Received, if a client has unregistered.
     */
-   method onClientUnregister {
-      in {
+   broadcast onClientUnregister selective {
+      out {
          String appName
          UInt32 seatId
       }
@@ -157,6 +145,18 @@ interface ProfileManagerCtrlConsumer {
    enumeration ESignal { 
       eConfirm
       eStopped
+   }
+   
+   /**
+    * Defines the possible corrective actions, once a timeout occured 
+    */
+    
+  enumeration ETimeOutAction {
+      eDropApplication     /* unregister the client, that caused the timeout and continue */
+      eIgnore              /* ignore that the timeout occurred, act as if the event was received  */
+      eReTime              /* Reset all timers and wait again */
+      eStopWaitForNewUser  /* Stop the current user switch, do nothing until new user has been set */
+      eReturnToOldUser     /* Since switch to new user has not been successful, reactivate last user  */
    }
    
 }

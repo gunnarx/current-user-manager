@@ -34,8 +34,8 @@ class ProfileManagerStubDefault : public ProfileManagerStub {
     ProfileManagerStubRemoteEvent* initStubAdapter(const std::shared_ptr<ProfileManagerStubAdapter>& stubAdapter);
 
 
-    virtual void registerMe(const std::shared_ptr<CommonAPI::ClientId> clientId, std::string consumerAddress, std::string appID, int32_t seatID);
-    virtual void registerMe(std::string consumerAddress, std::string appID, int32_t seatID);
+    virtual void registerMe(const std::shared_ptr<CommonAPI::ClientId> clientId, std::string appID, int32_t seatID);
+    virtual void registerMe(std::string appID, int32_t seatID);
 
     virtual void unregisterMe(const std::shared_ptr<CommonAPI::ClientId> clientId, std::string consumerAddress, std::string appID, int32_t seatID);
     virtual void unregisterMe(std::string consumerAddress, std::string appID, int32_t seatID);
@@ -47,6 +47,24 @@ class ProfileManagerStubDefault : public ProfileManagerStub {
     virtual void stopped(uint64_t sessionID);
 
 
+    virtual void fireDetectedUserSelective(const int32_t& seatID, const int32_t& userID, const uint64_t& sessionID, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    virtual std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForDetectedUserSelective();
+    /// Hook method for reacting on new subscriptions or removed subscriptions respectively for selective broadcasts.
+    virtual void onDetectedUserSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event);
+    /// Hook method for reacting accepting or denying new subscriptions 
+    virtual bool onDetectedUserSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    virtual void fireSynchronizedUserSelective(const int32_t& seatID, const int32_t& userID, const uint64_t& sessionID, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    virtual std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForSynchronizedUserSelective();
+    /// Hook method for reacting on new subscriptions or removed subscriptions respectively for selective broadcasts.
+    virtual void onSynchronizedUserSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event);
+    /// Hook method for reacting accepting or denying new subscriptions 
+    virtual bool onSynchronizedUserSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    virtual void fireStopSelective(const int32_t& seatID, const uint64_t& sessionID, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    virtual std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForStopSelective();
+    /// Hook method for reacting on new subscriptions or removed subscriptions respectively for selective broadcasts.
+    virtual void onStopSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event);
+    /// Hook method for reacting accepting or denying new subscriptions 
+    virtual bool onStopSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId);
     
 
  protected:

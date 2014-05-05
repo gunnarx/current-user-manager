@@ -43,6 +43,31 @@ class ProfileManagerCtrlDBusStubAdapter: public ProfileManagerCtrlStubAdapter, p
     ~ProfileManagerCtrlDBusStubAdapter();
 
 
+    void fireOnTimeOutSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const std::string& appName, const uint32_t& userId, const uint32_t& seatId, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const int32_t& timeElapsedMs, const uint64_t& timeOutSessionId);
+    void sendOnTimeOutSelective(const std::string& appName, const uint32_t& userId, const uint32_t& seatId, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const int32_t& timeElapsedMs, const uint64_t& timeOutSessionId, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    void subscribeForonTimeOutSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success);
+    void unsubscribeFromonTimeOutSelective(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForOnTimeOutSelective();
+    void fireOnStateChangeStartSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const uint32_t& userId, const uint32_t& seatId, const int32_t& depLevel, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId);
+    void sendOnStateChangeStartSelective(const uint32_t& userId, const uint32_t& seatId, const int32_t& depLevel, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    void subscribeForonStateChangeStartSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success);
+    void unsubscribeFromonStateChangeStartSelective(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForOnStateChangeStartSelective();
+    void fireOnStateChangeStopSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const uint32_t& userId, const uint32_t& seatId, const int32_t& depLevel, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId);
+    void sendOnStateChangeStopSelective(const uint32_t& userId, const uint32_t& seatId, const int32_t& depLevel, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    void subscribeForonStateChangeStopSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success);
+    void unsubscribeFromonStateChangeStopSelective(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForOnStateChangeStopSelective();
+    void fireOnClientRegisterSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const std::string& appName, const uint32_t& seatId);
+    void sendOnClientRegisterSelective(const std::string& appName, const uint32_t& seatId, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    void subscribeForonClientRegisterSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success);
+    void unsubscribeFromonClientRegisterSelective(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForOnClientRegisterSelective();
+    void fireOnClientUnregisterSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const std::string& appName, const uint32_t& seatId);
+    void sendOnClientUnregisterSelective(const std::string& appName, const uint32_t& seatId, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    void subscribeForonClientUnregisterSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success);
+    void unsubscribeFromonClientUnregisterSelective(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForOnClientUnregisterSelective();
     
 
     const StubDispatcherTable& getStubDispatcherTable();

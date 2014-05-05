@@ -41,6 +41,11 @@ ProfileManagerCtrlDBusStubAdapter::ProfileManagerCtrlDBusStubAdapter(
         ProfileManagerCtrlDBusStubAdapterHelper(factory, commonApiAddress, dbusInterfaceName, dbusBusName, dbusObjectPath, 
             dbusConnection, std::dynamic_pointer_cast<ProfileManagerCtrlStub>(stub),
             false) {
+    subscribersForOnTimeOutSelective_ = std::make_shared<CommonAPI::ClientIdList>();
+    subscribersForOnStateChangeStartSelective_ = std::make_shared<CommonAPI::ClientIdList>();
+    subscribersForOnStateChangeStopSelective_ = std::make_shared<CommonAPI::ClientIdList>();
+    subscribersForOnClientRegisterSelective_ = std::make_shared<CommonAPI::ClientIdList>();
+    subscribersForOnClientUnregisterSelective_ = std::make_shared<CommonAPI::ClientIdList>();
 }
 
 ProfileManagerCtrlDBusStubAdapter::~ProfileManagerCtrlDBusStubAdapter() {
@@ -54,8 +59,38 @@ void ProfileManagerCtrlDBusStubAdapter::deactivateManagedInstances() {
 
 const char* ProfileManagerCtrlDBusStubAdapter::getMethodsDBusIntrospectionXmlData() const {
     static const char* introspectionData =
+        "<signal name=\"onTimeOut\">\n"
+            "<arg name=\"appName\" type=\"s\" />\n"
+            "<arg name=\"userId\" type=\"u\" />\n"
+            "<arg name=\"seatId\" type=\"u\" />\n"
+            "<arg name=\"s\" type=\"i\" />\n"
+            "<arg name=\"sessionId\" type=\"t\" />\n"
+            "<arg name=\"timeElapsedMs\" type=\"i\" />\n"
+            "<arg name=\"timeOutSessionId\" type=\"t\" />\n"
+        "</signal>\n"
+        "<signal name=\"onStateChangeStart\">\n"
+            "<arg name=\"userId\" type=\"u\" />\n"
+            "<arg name=\"seatId\" type=\"u\" />\n"
+            "<arg name=\"depLevel\" type=\"i\" />\n"
+            "<arg name=\"s\" type=\"i\" />\n"
+            "<arg name=\"sessionId\" type=\"t\" />\n"
+        "</signal>\n"
+        "<signal name=\"onStateChangeStop\">\n"
+            "<arg name=\"userId\" type=\"u\" />\n"
+            "<arg name=\"seatId\" type=\"u\" />\n"
+            "<arg name=\"depLevel\" type=\"i\" />\n"
+            "<arg name=\"s\" type=\"i\" />\n"
+            "<arg name=\"sessionId\" type=\"t\" />\n"
+        "</signal>\n"
+        "<signal name=\"onClientRegister\">\n"
+            "<arg name=\"appName\" type=\"s\" />\n"
+            "<arg name=\"seatId\" type=\"u\" />\n"
+        "</signal>\n"
+        "<signal name=\"onClientUnregister\">\n"
+            "<arg name=\"appName\" type=\"s\" />\n"
+            "<arg name=\"seatId\" type=\"u\" />\n"
+        "</signal>\n"
         "<method name=\"registerMe\">\n"
-            "<arg name=\"consumerAddress\" type=\"s\" direction=\"in\" />\n"
             "<arg name=\"registerOnTimeOut\" type=\"b\" direction=\"in\" />\n"
             "<arg name=\"registerOnStateChangeStart\" type=\"b\" direction=\"in\" />\n"
             "<arg name=\"registerOnStateChangeStop\" type=\"b\" direction=\"in\" />\n"
@@ -82,7 +117,7 @@ const char* ProfileManagerCtrlDBusStubAdapter::getMethodsDBusIntrospectionXmlDat
 
 static CommonAPI::DBus::DBusMethodWithReplyStubDispatcher<
     ProfileManagerCtrlStub,
-    std::tuple<std::string, bool, bool, bool, bool, bool>,
+    std::tuple<bool, bool, bool, bool, bool>,
     std::tuple<>
     > registerMeStubDispatcher(&ProfileManagerCtrlStub::registerMe, "");
 static CommonAPI::DBus::DBusMethodWithReplyStubDispatcher<
@@ -102,13 +137,364 @@ static CommonAPI::DBus::DBusMethodWithReplyStubDispatcher<
     > timeOutActionStubDispatcher(&ProfileManagerCtrlStub::timeOutAction, "");
 
 
+static CommonAPI::DBus::DBusMethodWithReplyAdapterDispatcher<
+    ProfileManagerCtrlStub,
+    ProfileManagerCtrlStubAdapter,
+    std::tuple<>,
+    std::tuple<bool>
+    > subscribeOnTimeOutSelectiveStubDispatcher(&ProfileManagerCtrlStubAdapter::subscribeForonTimeOutSelective, "b");
+
+static CommonAPI::DBus::DBusMethodWithReplyAdapterDispatcher<
+    ProfileManagerCtrlStub,
+    ProfileManagerCtrlStubAdapter,
+    std::tuple<>,
+    std::tuple<>
+    > unsubscribeOnTimeOutSelectiveStubDispatcher(&ProfileManagerCtrlStubAdapter::unsubscribeFromonTimeOutSelective, "");
+
+
+void ProfileManagerCtrlDBusStubAdapter::fireOnTimeOutSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const std::string& appName, const uint32_t& userId, const uint32_t& seatId, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const int32_t& timeElapsedMs, const uint64_t& timeOutSessionId) {
+    std::shared_ptr<CommonAPI::DBus::DBusClientId> dbusClientId = std::dynamic_pointer_cast<CommonAPI::DBus::DBusClientId, CommonAPI::ClientId>(clientId);
+
+    if(dbusClientId)
+    {
+        CommonAPI::DBus::DBusStubSignalHelper<CommonAPI::DBus::DBusSerializableArguments<std::string, uint32_t, uint32_t, ProfileManagerCtrl::ESignal, uint64_t, int32_t, uint64_t>>
+            ::sendSignal(
+                dbusClientId->getDBusId(),
+                *this,
+                "onTimeOut",
+                "suuitit",
+                appName, userId, seatId, s, sessionId, timeElapsedMs, timeOutSessionId
+        );
+    }
+}
+
+void ProfileManagerCtrlDBusStubAdapter::sendOnTimeOutSelective(const std::string& appName, const uint32_t& userId, const uint32_t& seatId, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const int32_t& timeElapsedMs, const uint64_t& timeOutSessionId, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    std::shared_ptr<CommonAPI::ClientIdList> actualReceiverList;
+    actualReceiverList = receivers;
+
+    if(receivers == NULL)
+        actualReceiverList = subscribersForOnTimeOutSelective_;
+
+    for (auto clientIdIterator = actualReceiverList->cbegin();
+               clientIdIterator != actualReceiverList->cend();
+               clientIdIterator++) {
+        if(receivers == NULL || subscribersForOnTimeOutSelective_->find(*clientIdIterator) != subscribersForOnTimeOutSelective_->end()) {
+            fireOnTimeOutSelective(*clientIdIterator, appName, userId, seatId, s, sessionId, timeElapsedMs, timeOutSessionId);
+        }
+    }
+}
+
+void ProfileManagerCtrlDBusStubAdapter::subscribeForonTimeOutSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success) {
+    bool ok = stub_->onOnTimeOutSelectiveSubscriptionRequested(clientId);
+    if (ok) {
+        subscribersForOnTimeOutSelective_->insert(clientId);
+        stub_->onOnTimeOutSelectiveSubscriptionChanged(clientId, CommonAPI::SelectiveBroadcastSubscriptionEvent::SUBSCRIBED);
+        success = true;
+    } else {
+        success = false;
+    }
+}
+
+
+void ProfileManagerCtrlDBusStubAdapter::unsubscribeFromonTimeOutSelective(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    subscribersForOnTimeOutSelective_->erase(clientId);
+    stub_->onOnTimeOutSelectiveSubscriptionChanged(clientId, CommonAPI::SelectiveBroadcastSubscriptionEvent::UNSUBSCRIBED);
+}
+
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerCtrlDBusStubAdapter::getSubscribersForOnTimeOutSelective() {
+    return subscribersForOnTimeOutSelective_;
+}
+
+static CommonAPI::DBus::DBusMethodWithReplyAdapterDispatcher<
+    ProfileManagerCtrlStub,
+    ProfileManagerCtrlStubAdapter,
+    std::tuple<>,
+    std::tuple<bool>
+    > subscribeOnStateChangeStartSelectiveStubDispatcher(&ProfileManagerCtrlStubAdapter::subscribeForonStateChangeStartSelective, "b");
+
+static CommonAPI::DBus::DBusMethodWithReplyAdapterDispatcher<
+    ProfileManagerCtrlStub,
+    ProfileManagerCtrlStubAdapter,
+    std::tuple<>,
+    std::tuple<>
+    > unsubscribeOnStateChangeStartSelectiveStubDispatcher(&ProfileManagerCtrlStubAdapter::unsubscribeFromonStateChangeStartSelective, "");
+
+
+void ProfileManagerCtrlDBusStubAdapter::fireOnStateChangeStartSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const uint32_t& userId, const uint32_t& seatId, const int32_t& depLevel, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId) {
+    std::shared_ptr<CommonAPI::DBus::DBusClientId> dbusClientId = std::dynamic_pointer_cast<CommonAPI::DBus::DBusClientId, CommonAPI::ClientId>(clientId);
+
+    if(dbusClientId)
+    {
+        CommonAPI::DBus::DBusStubSignalHelper<CommonAPI::DBus::DBusSerializableArguments<uint32_t, uint32_t, int32_t, ProfileManagerCtrl::ESignal, uint64_t>>
+            ::sendSignal(
+                dbusClientId->getDBusId(),
+                *this,
+                "onStateChangeStart",
+                "uuiit",
+                userId, seatId, depLevel, s, sessionId
+        );
+    }
+}
+
+void ProfileManagerCtrlDBusStubAdapter::sendOnStateChangeStartSelective(const uint32_t& userId, const uint32_t& seatId, const int32_t& depLevel, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    std::shared_ptr<CommonAPI::ClientIdList> actualReceiverList;
+    actualReceiverList = receivers;
+
+    if(receivers == NULL)
+        actualReceiverList = subscribersForOnStateChangeStartSelective_;
+
+    for (auto clientIdIterator = actualReceiverList->cbegin();
+               clientIdIterator != actualReceiverList->cend();
+               clientIdIterator++) {
+        if(receivers == NULL || subscribersForOnStateChangeStartSelective_->find(*clientIdIterator) != subscribersForOnStateChangeStartSelective_->end()) {
+            fireOnStateChangeStartSelective(*clientIdIterator, userId, seatId, depLevel, s, sessionId);
+        }
+    }
+}
+
+void ProfileManagerCtrlDBusStubAdapter::subscribeForonStateChangeStartSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success) {
+    bool ok = stub_->onOnStateChangeStartSelectiveSubscriptionRequested(clientId);
+    if (ok) {
+        subscribersForOnStateChangeStartSelective_->insert(clientId);
+        stub_->onOnStateChangeStartSelectiveSubscriptionChanged(clientId, CommonAPI::SelectiveBroadcastSubscriptionEvent::SUBSCRIBED);
+        success = true;
+    } else {
+        success = false;
+    }
+}
+
+
+void ProfileManagerCtrlDBusStubAdapter::unsubscribeFromonStateChangeStartSelective(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    subscribersForOnStateChangeStartSelective_->erase(clientId);
+    stub_->onOnStateChangeStartSelectiveSubscriptionChanged(clientId, CommonAPI::SelectiveBroadcastSubscriptionEvent::UNSUBSCRIBED);
+}
+
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerCtrlDBusStubAdapter::getSubscribersForOnStateChangeStartSelective() {
+    return subscribersForOnStateChangeStartSelective_;
+}
+
+static CommonAPI::DBus::DBusMethodWithReplyAdapterDispatcher<
+    ProfileManagerCtrlStub,
+    ProfileManagerCtrlStubAdapter,
+    std::tuple<>,
+    std::tuple<bool>
+    > subscribeOnStateChangeStopSelectiveStubDispatcher(&ProfileManagerCtrlStubAdapter::subscribeForonStateChangeStopSelective, "b");
+
+static CommonAPI::DBus::DBusMethodWithReplyAdapterDispatcher<
+    ProfileManagerCtrlStub,
+    ProfileManagerCtrlStubAdapter,
+    std::tuple<>,
+    std::tuple<>
+    > unsubscribeOnStateChangeStopSelectiveStubDispatcher(&ProfileManagerCtrlStubAdapter::unsubscribeFromonStateChangeStopSelective, "");
+
+
+void ProfileManagerCtrlDBusStubAdapter::fireOnStateChangeStopSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const uint32_t& userId, const uint32_t& seatId, const int32_t& depLevel, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId) {
+    std::shared_ptr<CommonAPI::DBus::DBusClientId> dbusClientId = std::dynamic_pointer_cast<CommonAPI::DBus::DBusClientId, CommonAPI::ClientId>(clientId);
+
+    if(dbusClientId)
+    {
+        CommonAPI::DBus::DBusStubSignalHelper<CommonAPI::DBus::DBusSerializableArguments<uint32_t, uint32_t, int32_t, ProfileManagerCtrl::ESignal, uint64_t>>
+            ::sendSignal(
+                dbusClientId->getDBusId(),
+                *this,
+                "onStateChangeStop",
+                "uuiit",
+                userId, seatId, depLevel, s, sessionId
+        );
+    }
+}
+
+void ProfileManagerCtrlDBusStubAdapter::sendOnStateChangeStopSelective(const uint32_t& userId, const uint32_t& seatId, const int32_t& depLevel, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    std::shared_ptr<CommonAPI::ClientIdList> actualReceiverList;
+    actualReceiverList = receivers;
+
+    if(receivers == NULL)
+        actualReceiverList = subscribersForOnStateChangeStopSelective_;
+
+    for (auto clientIdIterator = actualReceiverList->cbegin();
+               clientIdIterator != actualReceiverList->cend();
+               clientIdIterator++) {
+        if(receivers == NULL || subscribersForOnStateChangeStopSelective_->find(*clientIdIterator) != subscribersForOnStateChangeStopSelective_->end()) {
+            fireOnStateChangeStopSelective(*clientIdIterator, userId, seatId, depLevel, s, sessionId);
+        }
+    }
+}
+
+void ProfileManagerCtrlDBusStubAdapter::subscribeForonStateChangeStopSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success) {
+    bool ok = stub_->onOnStateChangeStopSelectiveSubscriptionRequested(clientId);
+    if (ok) {
+        subscribersForOnStateChangeStopSelective_->insert(clientId);
+        stub_->onOnStateChangeStopSelectiveSubscriptionChanged(clientId, CommonAPI::SelectiveBroadcastSubscriptionEvent::SUBSCRIBED);
+        success = true;
+    } else {
+        success = false;
+    }
+}
+
+
+void ProfileManagerCtrlDBusStubAdapter::unsubscribeFromonStateChangeStopSelective(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    subscribersForOnStateChangeStopSelective_->erase(clientId);
+    stub_->onOnStateChangeStopSelectiveSubscriptionChanged(clientId, CommonAPI::SelectiveBroadcastSubscriptionEvent::UNSUBSCRIBED);
+}
+
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerCtrlDBusStubAdapter::getSubscribersForOnStateChangeStopSelective() {
+    return subscribersForOnStateChangeStopSelective_;
+}
+
+static CommonAPI::DBus::DBusMethodWithReplyAdapterDispatcher<
+    ProfileManagerCtrlStub,
+    ProfileManagerCtrlStubAdapter,
+    std::tuple<>,
+    std::tuple<bool>
+    > subscribeOnClientRegisterSelectiveStubDispatcher(&ProfileManagerCtrlStubAdapter::subscribeForonClientRegisterSelective, "b");
+
+static CommonAPI::DBus::DBusMethodWithReplyAdapterDispatcher<
+    ProfileManagerCtrlStub,
+    ProfileManagerCtrlStubAdapter,
+    std::tuple<>,
+    std::tuple<>
+    > unsubscribeOnClientRegisterSelectiveStubDispatcher(&ProfileManagerCtrlStubAdapter::unsubscribeFromonClientRegisterSelective, "");
+
+
+void ProfileManagerCtrlDBusStubAdapter::fireOnClientRegisterSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const std::string& appName, const uint32_t& seatId) {
+    std::shared_ptr<CommonAPI::DBus::DBusClientId> dbusClientId = std::dynamic_pointer_cast<CommonAPI::DBus::DBusClientId, CommonAPI::ClientId>(clientId);
+
+    if(dbusClientId)
+    {
+        CommonAPI::DBus::DBusStubSignalHelper<CommonAPI::DBus::DBusSerializableArguments<std::string, uint32_t>>
+            ::sendSignal(
+                dbusClientId->getDBusId(),
+                *this,
+                "onClientRegister",
+                "su",
+                appName, seatId
+        );
+    }
+}
+
+void ProfileManagerCtrlDBusStubAdapter::sendOnClientRegisterSelective(const std::string& appName, const uint32_t& seatId, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    std::shared_ptr<CommonAPI::ClientIdList> actualReceiverList;
+    actualReceiverList = receivers;
+
+    if(receivers == NULL)
+        actualReceiverList = subscribersForOnClientRegisterSelective_;
+
+    for (auto clientIdIterator = actualReceiverList->cbegin();
+               clientIdIterator != actualReceiverList->cend();
+               clientIdIterator++) {
+        if(receivers == NULL || subscribersForOnClientRegisterSelective_->find(*clientIdIterator) != subscribersForOnClientRegisterSelective_->end()) {
+            fireOnClientRegisterSelective(*clientIdIterator, appName, seatId);
+        }
+    }
+}
+
+void ProfileManagerCtrlDBusStubAdapter::subscribeForonClientRegisterSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success) {
+    bool ok = stub_->onOnClientRegisterSelectiveSubscriptionRequested(clientId);
+    if (ok) {
+        subscribersForOnClientRegisterSelective_->insert(clientId);
+        stub_->onOnClientRegisterSelectiveSubscriptionChanged(clientId, CommonAPI::SelectiveBroadcastSubscriptionEvent::SUBSCRIBED);
+        success = true;
+    } else {
+        success = false;
+    }
+}
+
+
+void ProfileManagerCtrlDBusStubAdapter::unsubscribeFromonClientRegisterSelective(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    subscribersForOnClientRegisterSelective_->erase(clientId);
+    stub_->onOnClientRegisterSelectiveSubscriptionChanged(clientId, CommonAPI::SelectiveBroadcastSubscriptionEvent::UNSUBSCRIBED);
+}
+
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerCtrlDBusStubAdapter::getSubscribersForOnClientRegisterSelective() {
+    return subscribersForOnClientRegisterSelective_;
+}
+
+static CommonAPI::DBus::DBusMethodWithReplyAdapterDispatcher<
+    ProfileManagerCtrlStub,
+    ProfileManagerCtrlStubAdapter,
+    std::tuple<>,
+    std::tuple<bool>
+    > subscribeOnClientUnregisterSelectiveStubDispatcher(&ProfileManagerCtrlStubAdapter::subscribeForonClientUnregisterSelective, "b");
+
+static CommonAPI::DBus::DBusMethodWithReplyAdapterDispatcher<
+    ProfileManagerCtrlStub,
+    ProfileManagerCtrlStubAdapter,
+    std::tuple<>,
+    std::tuple<>
+    > unsubscribeOnClientUnregisterSelectiveStubDispatcher(&ProfileManagerCtrlStubAdapter::unsubscribeFromonClientUnregisterSelective, "");
+
+
+void ProfileManagerCtrlDBusStubAdapter::fireOnClientUnregisterSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const std::string& appName, const uint32_t& seatId) {
+    std::shared_ptr<CommonAPI::DBus::DBusClientId> dbusClientId = std::dynamic_pointer_cast<CommonAPI::DBus::DBusClientId, CommonAPI::ClientId>(clientId);
+
+    if(dbusClientId)
+    {
+        CommonAPI::DBus::DBusStubSignalHelper<CommonAPI::DBus::DBusSerializableArguments<std::string, uint32_t>>
+            ::sendSignal(
+                dbusClientId->getDBusId(),
+                *this,
+                "onClientUnregister",
+                "su",
+                appName, seatId
+        );
+    }
+}
+
+void ProfileManagerCtrlDBusStubAdapter::sendOnClientUnregisterSelective(const std::string& appName, const uint32_t& seatId, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    std::shared_ptr<CommonAPI::ClientIdList> actualReceiverList;
+    actualReceiverList = receivers;
+
+    if(receivers == NULL)
+        actualReceiverList = subscribersForOnClientUnregisterSelective_;
+
+    for (auto clientIdIterator = actualReceiverList->cbegin();
+               clientIdIterator != actualReceiverList->cend();
+               clientIdIterator++) {
+        if(receivers == NULL || subscribersForOnClientUnregisterSelective_->find(*clientIdIterator) != subscribersForOnClientUnregisterSelective_->end()) {
+            fireOnClientUnregisterSelective(*clientIdIterator, appName, seatId);
+        }
+    }
+}
+
+void ProfileManagerCtrlDBusStubAdapter::subscribeForonClientUnregisterSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success) {
+    bool ok = stub_->onOnClientUnregisterSelectiveSubscriptionRequested(clientId);
+    if (ok) {
+        subscribersForOnClientUnregisterSelective_->insert(clientId);
+        stub_->onOnClientUnregisterSelectiveSubscriptionChanged(clientId, CommonAPI::SelectiveBroadcastSubscriptionEvent::SUBSCRIBED);
+        success = true;
+    } else {
+        success = false;
+    }
+}
+
+
+void ProfileManagerCtrlDBusStubAdapter::unsubscribeFromonClientUnregisterSelective(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    subscribersForOnClientUnregisterSelective_->erase(clientId);
+    stub_->onOnClientUnregisterSelectiveSubscriptionChanged(clientId, CommonAPI::SelectiveBroadcastSubscriptionEvent::UNSUBSCRIBED);
+}
+
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerCtrlDBusStubAdapter::getSubscribersForOnClientUnregisterSelective() {
+    return subscribersForOnClientUnregisterSelective_;
+}
+
 
 const ProfileManagerCtrlDBusStubAdapter::StubDispatcherTable& ProfileManagerCtrlDBusStubAdapter::getStubDispatcherTable() {
     static const ProfileManagerCtrlDBusStubAdapter::StubDispatcherTable stubDispatcherTable = {
-            { { "registerMe", "sbbbbb" }, &org::genivi::profile_mgmt_ctrl::registerMeStubDispatcher },
+            { { "registerMe", "bbbbb" }, &org::genivi::profile_mgmt_ctrl::registerMeStubDispatcher },
             { { "setUser", "uu" }, &org::genivi::profile_mgmt_ctrl::setUserStubDispatcher },
             { { "unsetUser", "u" }, &org::genivi::profile_mgmt_ctrl::unsetUserStubDispatcher },
             { { "timeOutAction", "ti" }, &org::genivi::profile_mgmt_ctrl::timeOutActionStubDispatcher }
+            ,
+            { { "subscribeForonTimeOutSelective", "" }, &org::genivi::profile_mgmt_ctrl::subscribeOnTimeOutSelectiveStubDispatcher },
+            { { "unsubscribeFromonTimeOutSelective", "" }, &org::genivi::profile_mgmt_ctrl::unsubscribeOnTimeOutSelectiveStubDispatcher },
+            { { "subscribeForonStateChangeStartSelective", "" }, &org::genivi::profile_mgmt_ctrl::subscribeOnStateChangeStartSelectiveStubDispatcher },
+            { { "unsubscribeFromonStateChangeStartSelective", "" }, &org::genivi::profile_mgmt_ctrl::unsubscribeOnStateChangeStartSelectiveStubDispatcher },
+            { { "subscribeForonStateChangeStopSelective", "" }, &org::genivi::profile_mgmt_ctrl::subscribeOnStateChangeStopSelectiveStubDispatcher },
+            { { "unsubscribeFromonStateChangeStopSelective", "" }, &org::genivi::profile_mgmt_ctrl::unsubscribeOnStateChangeStopSelectiveStubDispatcher },
+            { { "subscribeForonClientRegisterSelective", "" }, &org::genivi::profile_mgmt_ctrl::subscribeOnClientRegisterSelectiveStubDispatcher },
+            { { "unsubscribeFromonClientRegisterSelective", "" }, &org::genivi::profile_mgmt_ctrl::unsubscribeOnClientRegisterSelectiveStubDispatcher },
+            { { "subscribeForonClientUnregisterSelective", "" }, &org::genivi::profile_mgmt_ctrl::subscribeOnClientUnregisterSelectiveStubDispatcher },
+            { { "unsubscribeFromonClientUnregisterSelective", "" }, &org::genivi::profile_mgmt_ctrl::unsubscribeOnClientUnregisterSelectiveStubDispatcher }
             };
     return stubDispatcherTable;
 }

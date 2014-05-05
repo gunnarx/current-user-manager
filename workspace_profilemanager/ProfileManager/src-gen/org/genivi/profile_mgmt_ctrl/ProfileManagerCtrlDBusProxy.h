@@ -18,6 +18,9 @@
 
 #include <CommonAPI/DBus/DBusFactory.h>
 #include <CommonAPI/DBus/DBusProxy.h>
+#include <CommonAPI/DBus/DBusEvent.h>
+#include <CommonAPI/types.h>
+#include <CommonAPI/DBus/DBusSelectiveEvent.h>
 
 #undef COMMONAPI_INTERNAL_COMPILATION
 
@@ -40,9 +43,14 @@ class ProfileManagerCtrlDBusProxy: virtual public ProfileManagerCtrlProxyBase, v
     virtual ~ProfileManagerCtrlDBusProxy() { }
 
 
+    virtual OnTimeOutSelectiveEvent& getOnTimeOutSelectiveEvent();
+    virtual OnStateChangeStartSelectiveEvent& getOnStateChangeStartSelectiveEvent();
+    virtual OnStateChangeStopSelectiveEvent& getOnStateChangeStopSelectiveEvent();
+    virtual OnClientRegisterSelectiveEvent& getOnClientRegisterSelectiveEvent();
+    virtual OnClientUnregisterSelectiveEvent& getOnClientUnregisterSelectiveEvent();
 
-    virtual void registerMe(const std::string& consumerAddress, const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, CommonAPI::CallStatus& callStatus);
-    virtual std::future<CommonAPI::CallStatus> registerMeAsync(const std::string& consumerAddress, const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, RegisterMeAsyncCallback callback);
+    virtual void registerMe(const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, CommonAPI::CallStatus& callStatus);
+    virtual std::future<CommonAPI::CallStatus> registerMeAsync(const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, RegisterMeAsyncCallback callback);
     virtual void setUser(const uint32_t& userId, const uint32_t& seatId, CommonAPI::CallStatus& callStatus);
     virtual std::future<CommonAPI::CallStatus> setUserAsync(const uint32_t& userId, const uint32_t& seatId, SetUserAsyncCallback callback);
     virtual void unsetUser(const uint32_t& seatId, CommonAPI::CallStatus& callStatus);
@@ -55,6 +63,11 @@ class ProfileManagerCtrlDBusProxy: virtual public ProfileManagerCtrlProxyBase, v
 
  private:
 
+    CommonAPI::DBus::DBusSelectiveEvent<OnTimeOutSelectiveEvent> onTimeOutSelective_;
+    CommonAPI::DBus::DBusSelectiveEvent<OnStateChangeStartSelectiveEvent> onStateChangeStartSelective_;
+    CommonAPI::DBus::DBusSelectiveEvent<OnStateChangeStopSelectiveEvent> onStateChangeStopSelective_;
+    CommonAPI::DBus::DBusSelectiveEvent<OnClientRegisterSelectiveEvent> onClientRegisterSelective_;
+    CommonAPI::DBus::DBusSelectiveEvent<OnClientUnregisterSelectiveEvent> onClientUnregisterSelective_;
     
 };
 

@@ -23,11 +23,11 @@ ProfileManagerCtrlStubRemoteEvent* ProfileManagerCtrlStubDefault::initStubAdapte
 }
 
 
-void ProfileManagerCtrlStubDefault::registerMe(const std::shared_ptr<CommonAPI::ClientId> clientId, std::string consumerAddress, bool registerOnTimeOut, bool registerOnStateChangeStart, bool registerOnStateChangeStop, bool registerOnClientRegister, bool registerOnClientUnregister) {
+void ProfileManagerCtrlStubDefault::registerMe(const std::shared_ptr<CommonAPI::ClientId> clientId, bool registerOnTimeOut, bool registerOnStateChangeStart, bool registerOnStateChangeStop, bool registerOnClientRegister, bool registerOnClientUnregister) {
     // Call old style methods in default 
-    registerMe(consumerAddress, registerOnTimeOut, registerOnStateChangeStart, registerOnStateChangeStop, registerOnClientRegister, registerOnClientUnregister);
+    registerMe(registerOnTimeOut, registerOnStateChangeStart, registerOnStateChangeStop, registerOnClientRegister, registerOnClientUnregister);
 }
-void ProfileManagerCtrlStubDefault::registerMe(std::string consumerAddress, bool registerOnTimeOut, bool registerOnStateChangeStart, bool registerOnStateChangeStop, bool registerOnClientRegister, bool registerOnClientUnregister) {
+void ProfileManagerCtrlStubDefault::registerMe(bool registerOnTimeOut, bool registerOnStateChangeStart, bool registerOnStateChangeStop, bool registerOnClientRegister, bool registerOnClientUnregister) {
     // No operation in default
 }
 
@@ -55,6 +55,76 @@ void ProfileManagerCtrlStubDefault::timeOutAction(uint64_t timeOutSessionId, Pro
     // No operation in default
 }
 
+
+void ProfileManagerCtrlStubDefault::fireOnTimeOutSelective(const std::string& appName, const uint32_t& userId, const uint32_t& seatId, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const int32_t& timeElapsedMs, const uint64_t& timeOutSessionId, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    stubAdapter_->sendOnTimeOutSelective(appName, userId, seatId, s, sessionId, timeElapsedMs, timeOutSessionId, receivers);
+}
+void ProfileManagerCtrlStubDefault::onOnTimeOutSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event) {
+    // No operation in default
+}
+bool ProfileManagerCtrlStubDefault::onOnTimeOutSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    // Accept in default
+    return true;
+}
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerCtrlStubDefault::getSubscribersForOnTimeOutSelective() {
+    return(stubAdapter_->getSubscribersForOnTimeOutSelective());
+}
+
+void ProfileManagerCtrlStubDefault::fireOnStateChangeStartSelective(const uint32_t& userId, const uint32_t& seatId, const int32_t& depLevel, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    stubAdapter_->sendOnStateChangeStartSelective(userId, seatId, depLevel, s, sessionId, receivers);
+}
+void ProfileManagerCtrlStubDefault::onOnStateChangeStartSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event) {
+    // No operation in default
+}
+bool ProfileManagerCtrlStubDefault::onOnStateChangeStartSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    // Accept in default
+    return true;
+}
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerCtrlStubDefault::getSubscribersForOnStateChangeStartSelective() {
+    return(stubAdapter_->getSubscribersForOnStateChangeStartSelective());
+}
+
+void ProfileManagerCtrlStubDefault::fireOnStateChangeStopSelective(const uint32_t& userId, const uint32_t& seatId, const int32_t& depLevel, const ProfileManagerCtrl::ESignal& s, const uint64_t& sessionId, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    stubAdapter_->sendOnStateChangeStopSelective(userId, seatId, depLevel, s, sessionId, receivers);
+}
+void ProfileManagerCtrlStubDefault::onOnStateChangeStopSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event) {
+    // No operation in default
+}
+bool ProfileManagerCtrlStubDefault::onOnStateChangeStopSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    // Accept in default
+    return true;
+}
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerCtrlStubDefault::getSubscribersForOnStateChangeStopSelective() {
+    return(stubAdapter_->getSubscribersForOnStateChangeStopSelective());
+}
+
+void ProfileManagerCtrlStubDefault::fireOnClientRegisterSelective(const std::string& appName, const uint32_t& seatId, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    stubAdapter_->sendOnClientRegisterSelective(appName, seatId, receivers);
+}
+void ProfileManagerCtrlStubDefault::onOnClientRegisterSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event) {
+    // No operation in default
+}
+bool ProfileManagerCtrlStubDefault::onOnClientRegisterSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    // Accept in default
+    return true;
+}
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerCtrlStubDefault::getSubscribersForOnClientRegisterSelective() {
+    return(stubAdapter_->getSubscribersForOnClientRegisterSelective());
+}
+
+void ProfileManagerCtrlStubDefault::fireOnClientUnregisterSelective(const std::string& appName, const uint32_t& seatId, const std::shared_ptr<CommonAPI::ClientIdList> receivers) {
+    stubAdapter_->sendOnClientUnregisterSelective(appName, seatId, receivers);
+}
+void ProfileManagerCtrlStubDefault::onOnClientUnregisterSelectiveSubscriptionChanged(const std::shared_ptr<CommonAPI::ClientId> clientId, const CommonAPI::SelectiveBroadcastSubscriptionEvent event) {
+    // No operation in default
+}
+bool ProfileManagerCtrlStubDefault::onOnClientUnregisterSelectiveSubscriptionRequested(const std::shared_ptr<CommonAPI::ClientId> clientId) {
+    // Accept in default
+    return true;
+}
+std::shared_ptr<CommonAPI::ClientIdList> const ProfileManagerCtrlStubDefault::getSubscribersForOnClientUnregisterSelective() {
+    return(stubAdapter_->getSubscribersForOnClientUnregisterSelective());
+}
 
 
 

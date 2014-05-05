@@ -43,6 +43,21 @@ class ProfileManagerDBusStubAdapter: public ProfileManagerStubAdapter, public Pr
     ~ProfileManagerDBusStubAdapter();
 
 
+    void fireDetectedUserSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const int32_t& seatID, const int32_t& userID, const uint64_t& sessionID);
+    void sendDetectedUserSelective(const int32_t& seatID, const int32_t& userID, const uint64_t& sessionID, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    void subscribeFordetectedUserSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success);
+    void unsubscribeFromdetectedUserSelective(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForDetectedUserSelective();
+    void fireSynchronizedUserSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const int32_t& seatID, const int32_t& userID, const uint64_t& sessionID);
+    void sendSynchronizedUserSelective(const int32_t& seatID, const int32_t& userID, const uint64_t& sessionID, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    void subscribeForsynchronizedUserSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success);
+    void unsubscribeFromsynchronizedUserSelective(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForSynchronizedUserSelective();
+    void fireStopSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, const int32_t& seatID, const uint64_t& sessionID);
+    void sendStopSelective(const int32_t& seatID, const uint64_t& sessionID, const std::shared_ptr<CommonAPI::ClientIdList> receivers = NULL);
+    void subscribeForstopSelective(const std::shared_ptr<CommonAPI::ClientId> clientId, bool& success);
+    void unsubscribeFromstopSelective(const std::shared_ptr<CommonAPI::ClientId> clientId);
+    std::shared_ptr<CommonAPI::ClientIdList> const getSubscribersForStopSelective();
     
 
     const StubDispatcherTable& getStubDispatcherTable();

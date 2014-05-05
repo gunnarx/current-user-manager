@@ -20,6 +20,8 @@
 
 #include <vector>
 
+#include <CommonAPI/Event.h>
+#include <CommonAPI/SelectiveEvent.h>
 #include <CommonAPI/Proxy.h>
 #include <functional>
 #include <future>
@@ -32,6 +34,9 @@ namespace profile_mgmt {
 
 class ProfileManagerProxyBase: virtual public CommonAPI::Proxy {
  public:
+    typedef CommonAPI::SelectiveEvent<int32_t, int32_t, uint64_t> DetectedUserSelectiveEvent;
+    typedef CommonAPI::SelectiveEvent<int32_t, int32_t, uint64_t> SynchronizedUserSelectiveEvent;
+    typedef CommonAPI::SelectiveEvent<int32_t, uint64_t> StopSelectiveEvent;
 
     typedef std::function<void(const CommonAPI::CallStatus&)> RegisterMeAsyncCallback;
     typedef std::function<void(const CommonAPI::CallStatus&)> UnregisterMeAsyncCallback;
@@ -39,9 +44,12 @@ class ProfileManagerProxyBase: virtual public CommonAPI::Proxy {
     typedef std::function<void(const CommonAPI::CallStatus&)> StoppedAsyncCallback;
 
 
+    virtual DetectedUserSelectiveEvent& getDetectedUserSelectiveEvent() = 0;
+    virtual SynchronizedUserSelectiveEvent& getSynchronizedUserSelectiveEvent() = 0;
+    virtual StopSelectiveEvent& getStopSelectiveEvent() = 0;
 
-    virtual void registerMe(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus) = 0;
-    virtual std::future<CommonAPI::CallStatus> registerMeAsync(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, RegisterMeAsyncCallback callback) = 0;
+    virtual void registerMe(const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus) = 0;
+    virtual std::future<CommonAPI::CallStatus> registerMeAsync(const std::string& appID, const int32_t& seatID, RegisterMeAsyncCallback callback) = 0;
     virtual void unregisterMe(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, CommonAPI::CallStatus& callStatus) = 0;
     virtual std::future<CommonAPI::CallStatus> unregisterMeAsync(const std::string& consumerAddress, const std::string& appID, const int32_t& seatID, UnregisterMeAsyncCallback callback) = 0;
     virtual void confirm(const uint64_t& sessionID, CommonAPI::CallStatus& callStatus) = 0;

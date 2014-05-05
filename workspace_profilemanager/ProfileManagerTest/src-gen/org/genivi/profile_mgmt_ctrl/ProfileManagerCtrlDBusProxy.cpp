@@ -36,28 +36,48 @@ ProfileManagerCtrlDBusProxy::ProfileManagerCtrlDBusProxy(
                     const std::string& objectPath,
                     const std::shared_ptr<CommonAPI::DBus::DBusProxyConnection>& dbusProxyconnection):
         CommonAPI::DBus::DBusProxy(factory, commonApiAddress, interfaceName, busName, objectPath, dbusProxyconnection)
+,        onTimeOutSelective_(*this, "onTimeOut", "suuitit"),
+        onStateChangeStartSelective_(*this, "onStateChangeStart", "uuiit"),
+        onStateChangeStopSelective_(*this, "onStateChangeStop", "uuiit"),
+        onClientRegisterSelective_(*this, "onClientRegister", "su"),
+        onClientUnregisterSelective_(*this, "onClientUnregister", "su")
     {
     }
 
 
+ProfileManagerCtrlDBusProxy::OnTimeOutSelectiveEvent& ProfileManagerCtrlDBusProxy::getOnTimeOutSelectiveEvent() {
+    return onTimeOutSelective_;
+}
+ProfileManagerCtrlDBusProxy::OnStateChangeStartSelectiveEvent& ProfileManagerCtrlDBusProxy::getOnStateChangeStartSelectiveEvent() {
+    return onStateChangeStartSelective_;
+}
+ProfileManagerCtrlDBusProxy::OnStateChangeStopSelectiveEvent& ProfileManagerCtrlDBusProxy::getOnStateChangeStopSelectiveEvent() {
+    return onStateChangeStopSelective_;
+}
+ProfileManagerCtrlDBusProxy::OnClientRegisterSelectiveEvent& ProfileManagerCtrlDBusProxy::getOnClientRegisterSelectiveEvent() {
+    return onClientRegisterSelective_;
+}
+ProfileManagerCtrlDBusProxy::OnClientUnregisterSelectiveEvent& ProfileManagerCtrlDBusProxy::getOnClientUnregisterSelectiveEvent() {
+    return onClientUnregisterSelective_;
+}
 
-void ProfileManagerCtrlDBusProxy::registerMe(const std::string& consumerAddress, const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, CommonAPI::CallStatus& callStatus) {
-    CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<std::string, bool, bool, bool, bool, bool>,
+void ProfileManagerCtrlDBusProxy::registerMe(const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, CommonAPI::CallStatus& callStatus) {
+    CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<bool, bool, bool, bool, bool>,
                                      CommonAPI::DBus::DBusSerializableArguments<> >::callMethodWithReply(
         *this,
         "registerMe",
-        "sbbbbb",
-        consumerAddress, registerOnTimeOut, registerOnStateChangeStart, registerOnStateChangeStop, registerOnClientRegister, registerOnClientUnregister, 
+        "bbbbb",
+        registerOnTimeOut, registerOnStateChangeStart, registerOnStateChangeStop, registerOnClientRegister, registerOnClientUnregister, 
         callStatus
         );
 }
-std::future<CommonAPI::CallStatus> ProfileManagerCtrlDBusProxy::registerMeAsync(const std::string& consumerAddress, const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, RegisterMeAsyncCallback callback) {
-    return CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<std::string, bool, bool, bool, bool, bool>,
+std::future<CommonAPI::CallStatus> ProfileManagerCtrlDBusProxy::registerMeAsync(const bool& registerOnTimeOut, const bool& registerOnStateChangeStart, const bool& registerOnStateChangeStop, const bool& registerOnClientRegister, const bool& registerOnClientUnregister, RegisterMeAsyncCallback callback) {
+    return CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<bool, bool, bool, bool, bool>,
                                      CommonAPI::DBus::DBusSerializableArguments<> >::callMethodAsync(
         *this,
         "registerMe",
-        "sbbbbb",
-        consumerAddress, registerOnTimeOut, registerOnStateChangeStart, registerOnStateChangeStop, registerOnClientRegister, registerOnClientUnregister, 
+        "bbbbb",
+        registerOnTimeOut, registerOnStateChangeStart, registerOnStateChangeStop, registerOnClientRegister, registerOnClientUnregister, 
         std::move(callback));
 }
 void ProfileManagerCtrlDBusProxy::setUser(const uint32_t& userId, const uint32_t& seatId, CommonAPI::CallStatus& callStatus) {

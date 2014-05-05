@@ -109,9 +109,9 @@ void ProfileManagerLogic::readCfgFromFile(){
 }
 
 
-void ProfileManagerLogic::logicControllerReceive_registerMe(std::string consumerAddress, ProfileManagerCfg* cfg)
+void ProfileManagerLogic::logicControllerReceive_registerMe(std::shared_ptr<CommonAPI::ClientId> clientId, ProfileManagerCfg* cfg)
 {
-	mControllSend->ServiceAddress=consumerAddress;
+	mControllSend->controllerId=clientId;
 
 	mCfg = cfg;
 	if (mCfg == 0) {
@@ -238,7 +238,7 @@ int ProfileManagerLogic::sendSync(int seatId) {
 	for (clientIt = s->mClientList.begin(); clientIt != s->mClientList.end(); clientIt++) {
 		ProfileManagerClient * c = &(*clientIt);
 		if (c->mClientCurrentStatus != eNotRegistered) {
-			mClientSend->sendSynchronizedUser(c->mClientSelector, seatId, s->mUserId, getExternalSession(*s, *c));
+			mClientSend->sendSynchronizedUser(c->mDbusClientId, seatId, s->mUserId, getExternalSession(*s, *c));
 			c->mClientCurrentStatus = eSynced;
 			numOfSendMsgs++;
 		}
@@ -262,7 +262,7 @@ int ProfileManagerLogic::sendDetected(int seatId, int depLevel) {
 	for (vector<ProfileManagerClient>::iterator clientIt = s->mClientList.begin(); clientIt != s->mClientList.end(); clientIt++) {
 		ProfileManagerClient * c = &(*clientIt);
 		if (c->mClientCurrentStatus != eNotRegistered && c->mClientDepLevel == depLevel) {
-			mClientSend->sendDetectedUser(c->mClientSelector, seatId, s->mUserId, getExternalSession(*s, *c));
+			mClientSend->sendDetectedUser(c->mDbusClientId, seatId, s->mUserId, getExternalSession(*s, *c));
 			c->mClientCurrentStatus = eDetected;
 			c->mCurrentInternalSession = s->mInternalSession;
 			numOfSendMsgs++;
@@ -297,7 +297,7 @@ int ProfileManagerLogic::sendStop(int seatId, int depLevel) {
 
 		if (c->mClientCurrentStatus != eNotRegistered && c->mClientCurrentStatus != eStop &&
 				c->mClientCurrentStatus != eStopped && c->mClientDepLevel == depLevel) {
-			mClientSend->sendStop(c->mClientSelector, seatId, getExternalSession(*s, *c));
+			mClientSend->sendStop(c->mDbusClientId, seatId, getExternalSession(*s, *c));
 			c->mClientCurrentStatus = eStop;
 			c->mCurrentInternalSession = s->mInternalSession;
 			numOfSendMsgs++;
@@ -317,7 +317,7 @@ int ProfileManagerLogic::sendStop(int seatId, int depLevel) {
  * @param appID            String identifier (unique per seat), that is needed to find the correct client configuration
  * @param seatID           Seat to register onto
  */
-void ProfileManagerLogic::logicClientReceive_Register(ClientSelector clientSelector, std::string appID, int seatID) {
+void ProfileManagerLogic::logicClientReceive_Register(std::shared_ptr<CommonAPI::ClientId> clientId, std::string appID, int seatID) {
 	ProfileManagerClient* c = 0;
 	if (seatID > 0 && seatID < mNumOfSeats) {
 		Seat* s = &(mSeats[seatID]);
@@ -326,8 +326,8 @@ void ProfileManagerLogic::logicClientReceive_Register(ClientSelector clientSelec
 		for (vector<ProfileManagerClient>::iterator clientIt = s->mClientList.begin(); clientIt != s->mClientList.end(); clientIt++) {
 			ProfileManagerClient * foundClient = &(*clientIt);
 			if (foundClient->mClientName.compare(appID) == 0) {
-				c = foundClient;
 				break;
+				c = foundClient;
 			}
 		}
 
@@ -350,7 +350,7 @@ void ProfileManagerLogic::logicClientReceive_Register(ClientSelector clientSelec
 			}
 			newClient.mClientId = s->mClientList.size();
 			newClient.mClientName = appID;
-			newClient.mClientSelector = clientSelector;
+			newClient.mDbusClientId = clientId;
 			newClient.mCurrentInternalSession = -1;
 			s->mClientList.push_back(newClient);
 			c = &(s->mClientList.back());
@@ -364,7 +364,7 @@ void ProfileManagerLogic::logicClientReceive_Register(ClientSelector clientSelec
 				mLog->log(PROFILEMAMAGERLOG_LEVEL_WARNING, "ProfileManager: Client with dependencies registered while user is active!");
 			}
 			if (s->mDepLevelIndex >= (int)mDepLevels.size() || mDepLevels[s->mDepLevelIndex] >= c->mClientDepLevel) {
-				mClientSend->sendDetectedUser(c->mClientSelector, seatID, s->mUserId, getExternalSession(*s, *c));
+				mClientSend->sendDetectedUser(c->mDbusClientId, seatID, s->mUserId, getExternalSession(*s, *c));
 				c->mClientCurrentStatus = eDetected;
 			}
 		}
@@ -486,7 +486,7 @@ void ProfileManagerLogic::logicClientReceive_Confirm(uint64_t externalSession) {
 				break;
 			case eUser:
 				c->mClientCurrentStatus = eSynced;
-				mClientSend->sendSynchronizedUser(c->mClientSelector, seatId, s->mUserId, getExternalSession(*s, *c));
+				mClientSend->sendSynchronizedUser(c->mDbusClientId, seatId, s->mUserId, getExternalSession(*s, *c));
 				break;
 			default:
 				break;
