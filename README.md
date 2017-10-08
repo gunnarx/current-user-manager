@@ -1,54 +1,109 @@
-debug release!
 
-Profile Manager and Profile Manager Test are my extensions/rework of the Martin Leisener PoC
-Most of needed info can be found here:
-https://collab.genivi.org/wiki/display/genivi/SysInfraEGUserMgmtPersProfileManagerPOC
-https://collab.genivi.org/wiki/display/genivi/SysInfraEGUserMgtPersonalizationDef#SysInfraEGUserMgtPersonalizationDef-Migration
-https://collab.genivi.org/wiki/display/genivi/SysInfraEGUserMgmtPersProfileManager
+## Introduction ##
 
-Profile Manager is currently utilizing:
-CommonAPI Dbus communication generated via Franca code generation from .fidl files,
-Async communication,
-Simple timeout mechanisms,
-set and unset User,
-register and unregister User,
+current-user-manager is the implementation originally called
+ProfileManager.   Perhaps the name might be changed like this to better
+clarify that it is not really managing profile information (a separate
+component probably needed for that), but we will see.
+
+Since this code needs various updates anyway, and since specifications
+refer to it as ProfileManager I have not made a change to the name inside 
+the PoC code, etc.
+
+It has been left unmaintained for quite a while, but might be updated some
+day (see TODOs).
+
+The primary interesting part of this component is the protocol, described
+in Franca IDL files, which coordinates a simultaneous switch of the
+"current user" among multiple software components.
+
+The original usage (still applicable) is to communicate a user switch
+between system components and "Native Applications" (per GENIVI
+definition). Native applications are typically run similar to daemons, and
+are herefore not restarted on a user switch, and consequently are also not
+using Effective User ID of the process as the user identification.  A
+system may combine it with "managed applications" which are typically
+launched on-demand by an application manager process. Managed applications
+are usually also handled like a Linux Desktop Session in the sense that
+applications are launched or relaunched with the process Effective User ID
+changed to the "logged in" user.
+
+This "current-user-manager" / "Profile Manager", is little more than a
+daemon that encapsulates the canonical source of knowledge of which is the
+currently logged in user (per seat, see below), and which in turn speaks
+the specified protocol with clients that need that information, and with
+clients that are entrusted to ask for the logged in user to change.  Since
+that's quite a limited function, a system may indeed choose to combine this
+into some other related component, e.g. the appropriate user-switching HMI
+or some other user-identification plugin.
+
+Native Applications keep an internal variable tracking which user is the
+current one for this application.  (Multi-seat/multi-screen systems are
+supported by the fact that a User+Seat pairs are tracked). The concept of
+Seat usually translates to a distinct physical display.
+
+The protocol could also be applicable to a distributed system, in which
+there is no other way to coordinate the concept of a currently logged in
+user.  Again, the user + seat combination fits here, as different "seats"
+could have different users, or even at times the same, depending on policy
+and situation.
+
+## Software Details
+
+The Profile Manager PoC is currently using:
+
+- CommonAPI Dbus communication generated via Franca code generation from .fidl files,
+
+NOTE: This needs an update to the latest CommonAPI version.
+
+Async communication, Simple timeout mechanisms, set and unset User,
+      register and unregister User,
 
 Profile Manager Test runs a test sequence:
-please use Sdedit software to view results (just copy paste results into soft downloaded from: http://sdedit.sourceforge.net/)
-If a test sequence for some reasons freezes, rerun it :)
 
+Please use Sdedit software to view results (just copy paste results into
+soft downloaded from: http://sdedit.sourceforge.net/) If a test
+sequence for some reasons freezes, rerun it :)
 
 
 ### BUILD AND RUN ###
-To build go to the directory workspace_profilemanager and run a script "cmake_script.sh" (newest version of the cmake may be needed).
-In the directory "workspace_profilemanager/exec" you will find both executables (PM and PMTest), to run simply execute both execs.
+To build, run a script "cmake_script.sh" (newest version of the cmake may be needed).
+In the directory "workspace_profilemanager/exec" you will find both
+executables (PM and PMTest), to run simply execute both execs.
 
-Profile Manager uses commonAPI version 2.1.4, it is not working  with previous versions. During commonAPI update remmeber to once again patch common-api-c++-dbus (for safety remove your dbus-1.4.16 and download/unpack it once again, do the patching, than install it).
+Profile Manager uses commonAPI version 2.1.4 (NEEDS UPDATE), it is not
+working  with previous versions. During commonAPI update remmeber to once
+again patch common-api-c++-dbus (for safety remove your dbus-1.4.16 and
+download/unpack it once again, do the patching, than install it).
 
-if you use pkgconfig please check if you have neccessary .pc files (CommonAPI.pc CommonAPI-DBus.pc dbus-1.pc) inside locations /usr/local/lib/pkgconfig/ and /usr/share/pkgconfig/
+if you use pkgconfig please check if you have neccessary .pc files
+(CommonAPI.pc CommonAPI-DBus.pc dbus-1.pc) inside locations
+/usr/local/lib/pkgconfig/ and /usr/share/pkgconfig/
 
-If you have an error during runtime, execute this command before starting the PM: export LD_LIBRARY_PATH="/usr/local/lib/" 
+If you have an error during runtime, execute this command before starting
+the PM: export LD_LIBRARY_PATH="/usr/local/lib/"
 
-If you still have an error during runtime check if you have a config file in a directory with the ProfileManager exec (a config file is currently generated by the ProfileManagerTest)
+If you still have an error during runtime check if you have a config file
+in a directory with the ProfileManager exec (a config file is currently
+      generated by the ProfileManagerTest)
+
+### Documentation ###
+
+FIXME: Find and link any relevant documentation.
 
 ### Common API ###
-Profile Manager uses commonAPI version 2.1.4
+Profile Manager uses commonAPI version 2.1.4 (NEEDS UPDATE)
 
-Common API specification:
-https://collab.genivi.org/wiki/display/genivi/SysInfraEGCppCommonAPISpecification
+Common API documentation:
+https://github.com/GENIVI/capicxx-tools
 
-Common API instalation (Very old guide ....):
-https://collab.genivi.org/wiki/display/genivi/SysInfraEGCommonIDLCommonAPIGuide
-
-If you have problem with the CommonAPI, mail me, I will try to help you :)
-
-
-
+Common API installation (Very old guide ....):
+https://github.com/GENIVI/capicxx-tools/wiki
 
 ### Eclipse config ###
-Below I've written my Eclipse settings, I hope it will help you.
+Some old (but potentially useful) Eclipse settings.
 
-I use the Eclipse Kepler (most recent version) with CDT and gcc v4.8 configured as following:
+The Eclipse Kepler (most recent version) with CDT and gcc v4.8 configured as following:
 compiler:
 g++ -pthread -std=c++11
 
@@ -72,11 +127,11 @@ pthread
 For ProfileManager and ProfileManagerTest create separate projects (with similar config).
 First start ProfileManager, than ProfileManagerTest. The test results are in output of the ProfileManagerTest - copy paste it into the sdedit to visualize results.
 
-If the code builds, but you have error during run you have to: 
+If the code builds, but you have error during run you have to:
 before running Eclipse (each time!) write commands
 export LD_LIBRARY_PATH="/usr/local/lib/"
 ~/Downloads/eclipse/eclipse               #(or your path to eclipse)
 
 ProfileManager needs a proper config, currently the config file is generated by the ProfileManagerTest.
-Please copy this config mannualy to the same folder where is ProfileManager executable 
+Please copy this config mannualy to the same folder where is ProfileManager executable
 
